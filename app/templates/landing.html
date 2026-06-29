@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Ticketera Individual{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <div class="brand"><span class="dot"></span> Ticketera Individual</div>
+        <div class="nav-links">
+            <a href="/login" class="btn btn-ghost">Iniciar sesion</a>
+            <a href="/register" class="btn btn-primary">Crear cuenta</a>
+        </div>
+    </nav>
+    <header class="landing-hero">
+        <p class="eyebrow">Para equipos chicos, tickets privados por persona</p>
+        <h1 class="fade-up" style="max-width:760px;">Tu trabajo,<br><em style="font-style:italic;color:var(--teal);">en orden.</em></h1>
+        <p class="fade-up" style="font-size:18px;line-height:1.6;color:var(--ink-soft);max-width:520px;margin:0 0 30px;">
+            Cada persona maneja sus propios tickets. El admin ve el avance de todos, sin pisarse el trabajo de nadie.
+        </p>
+        <div class="fade-up" style="display:flex;gap:12px;flex-wrap:wrap;">
+            <a href="/register" class="btn btn-primary">Crear cuenta gratis</a>
+            <a href="/login" class="btn btn-ghost">Ya tengo cuenta</a>
+        </div>
+    </header>
+</div>
+{% endblock %}

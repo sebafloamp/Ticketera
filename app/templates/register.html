@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Registro - Ticketera Individual{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="/"><span class="dot"></span> Ticketera Individual</a>
+    </nav>
+</div>
+<div class="auth-shell">
+    <div class="auth-card card fade-up">
+        <h1>Crear cuenta de administrador</h1>
+        {% if error %}<p class="error">{{ error }}</p>{% endif %}
+        <form method="post" action="/register" class="stack">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label>Nombre <input type="text" name="name" required></label>
+            <label>Email <input type="email" name="email" required></label>
+            <label>Password <input type="password" name="password" required minlength="8" maxlength="72"></label>
+            <button type="submit" class="btn btn-primary">Crear cuenta</button>
+        </form>
+        <p class="auth-foot">Ya tenes cuenta? <a href="/login" style="color:var(--teal);">Iniciar sesion</a></p>
+    </div>
+</div>
+{% endblock %}
