@@ -1,11 +1,20 @@
-services:
+﻿services:
   - type: web
     name: ticketera-individual
-    env: python
-    buildCommand: "pip install -r requirements.txt && alembic upgrade head"
-    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python -m alembic upgrade head
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        sync: false
+        fromDatabase:
+          name: ticketera-db
+          property: connectionString
+      - key: SESSION_COOKIE_SECURE
+        value: true
+
+databases:
+  - name: ticketera-db
+    databaseName: ticketera
+    user: ticketera
