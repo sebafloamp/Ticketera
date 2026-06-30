@@ -1,7 +1,8 @@
-from datetime import datetime
+﻿from datetime import datetime
 
 from fastapi import APIRouter, Depends, Form, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.csrf import get_or_create_csrf_token, require_csrf
@@ -47,6 +48,7 @@ def _ticket_for_user(db: Session, ticket_id: int, user_id: int):
 def create_ticket(
     project_id: int = Form(...),
     title: str = Form(...),
+    description: str = Form(""),
     priority: str = Form("media"),
     due_date: str = Form(""),
     current_user: User = Depends(get_current_user),
@@ -55,11 +57,13 @@ def create_ticket(
 ):
     project = _project_for_user(db, project_id, current_user.id)
     if project:
-        max_order = max([ticket.order for ticket in project.tickets], default=-1)
+        max_order = db.query(func.max(Ticket.order)).filter(Ticket.project_id == project.id).scalar()
+        max_order = max_order if max_order is not None else -1
         db.add(
             Ticket(
                 project_id=project.id,
                 title=title,
+                description=description,
                 status="pendiente",
                 priority=priority if priority in ("alta", "media", "baja") else "media",
                 due_date=datetime.fromisoformat(due_date) if due_date else None,

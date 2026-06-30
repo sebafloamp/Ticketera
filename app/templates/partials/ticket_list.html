@@ -1,13 +1,16 @@
-<ul class="ticket-list">
+﻿<ul class="ticket-list">
 {% for ticket in tickets %}
     <li>
         <form method="post" action="/tickets/{{ ticket.id }}/move" style="display:inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="order" value="{{ ticket.order }}">
             <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}/board?view=list">
-            <input type="hidden" name="status" value="{{ "pendiente" if ticket.status == "completado" else "completado" }}">
-            <button type="submit">{% if ticket.status == "completado" %}&#9745;{% else %}&#9744;{% endif %}</button>
-            {{ ticket.title }} ({{ ticket.status }}, {{ ticket.priority }}{% if ticket.due_date %}, {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
+            <select name="status" onchange="this.form.submit()">
+                <option value="pendiente" {% if ticket.status == "pendiente" %}selected{% endif %}>pendiente</option>
+                <option value="en_progreso" {% if ticket.status == "en_progreso" %}selected{% endif %}>en progreso</option>
+                <option value="completado" {% if ticket.status == "completado" %}selected{% endif %}>completado</option>
+            </select>
+            {{ ticket.title }} ({{ ticket.priority }}{% if ticket.due_date %}, {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
         </form>
     </li>
 {% endfor %}

@@ -1,5 +1,5 @@
+﻿<div class="kanban">
 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-<div class="kanban">
 {% for status in ["pendiente", "en_progreso", "completado"] %}
     <div class="kanban-column" data-status="{{ status }}">
         <h3>{{ status }}</h3>
@@ -17,6 +17,7 @@
 </div>
 
 <script>
+var csrfToken = "{{ csrf_token }}";
 document.querySelectorAll(".kanban-tasks").forEach(function (column) {
     new Sortable(column, {
         group: "kanban",
@@ -25,11 +26,13 @@ document.querySelectorAll(".kanban-tasks").forEach(function (column) {
             var ticketId = evt.item.getAttribute("data-task-id");
             var newStatus = evt.to.getAttribute("data-status");
             var order = evt.newIndex;
-            var csrfToken = "{{ csrf_token }}";
             fetch("/tickets/" + ticketId + "/move", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: "status=" + encodeURIComponent(newStatus) + "&order=" + order + "&csrf_token=" + encodeURIComponent(csrfToken),
+            }).catch(function (err) {
+                console.error("move failed:", err);
+                location.reload();
             });
         },
     });
