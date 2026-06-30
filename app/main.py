@@ -12,6 +12,7 @@ from app.routers import dashboard as dashboard_router
 from app.routers import landing as landing_router
 from app.routers import periods as periods_router
 from app.routers import projects as projects_router
+from app.routers import tickets as tickets_router
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -41,6 +42,7 @@ app.include_router(auth_router.router)
 app.include_router(dashboard_router.router)
 app.include_router(periods_router.router)
 app.include_router(projects_router.router)
+app.include_router(tickets_router.router)
 
 
 @app.get("/health")
