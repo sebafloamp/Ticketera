@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} - Ticketera Individual{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="/dashboard"><span class="dot"></span> Ticketera Individual</a>
+    </nav>
+
+    <a href="/dashboard" style="color:var(--ink-soft);font-size:14px;">&larr; Dashboard</a>
+    <h1 class="fade-up" style="margin-top:14px;">{{ project.title }}</h1>
+    <div class="fade-up pct-cell" style="max-width:320px;margin-bottom:24px;">
+        <div class="bar-track"><div class="bar-fill {% if project_progress >= 100 %}is-done{% endif %}" data-target="{{ project_progress }}"></div></div>
+        <span class="pct-num">{{ project_progress }}%</span>
+    </div>
+
+    <div class="fade-up nav-links" style="margin-bottom:20px;">
+        <a href="?view=kanban" class="btn btn-ghost">Kanban</a>
+        <a href="?view=list" class="btn btn-ghost">Lista</a>
+    </div>
+
+    <div class="card fade-up" style="margin-bottom:24px;">
+        <form method="post" action="/tickets" class="row">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="project_id" value="{{ project.id }}">
+            <input type="text" name="title" placeholder="Nuevo ticket" required>
+            <select name="priority">
+                <option value="baja">baja</option>
+                <option value="media" selected>media</option>
+                <option value="alta">alta</option>
+            </select>
+            <input type="date" name="due_date">
+            <button type="submit" class="btn btn-primary">Agregar ticket</button>
+        </form>
+    </div>
+
+    <div id="ticket-board" class="fade-up"
+         hx-get="/projects/{{ project.id }}/board"
+         hx-trigger="load"
+         hx-swap="innerHTML">
+    </div>
+</div>
+{% endblock %}
