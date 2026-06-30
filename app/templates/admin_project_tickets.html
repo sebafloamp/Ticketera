@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} - Admin{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="/admin"><span class="dot"></span> Ticketera Individual</a>
+    </nav>
+    <a href="/admin/users/{{ member.id }}" style="color:var(--ink-soft);font-size:14px;">&larr; {{ member.name }}</a>
+    <h1 class="fade-up" style="margin-top:14px;">{{ project.title }}</h1>
+
+    <ul class="ticket-list fade-up">
+    {% for ticket in tickets %}
+        <li>{{ ticket.title }} — <strong>{{ ticket.status }}</strong>, prioridad {{ ticket.priority }}{% if ticket.due_date %}, vence {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %}</li>
+    {% else %}
+        <li>Sin tickets todavia.</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endblock %}

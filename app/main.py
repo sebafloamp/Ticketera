@@ -1,4 +1,4 @@
-import os
+﻿import os
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
@@ -13,6 +13,7 @@ from app.routers import landing as landing_router
 from app.routers import periods as periods_router
 from app.routers import projects as projects_router
 from app.routers import tickets as tickets_router
+from app.routers import admin as admin_router
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -43,8 +44,10 @@ app.include_router(dashboard_router.router)
 app.include_router(periods_router.router)
 app.include_router(projects_router.router)
 app.include_router(tickets_router.router)
+app.include_router(admin_router.router)
 
 
 @app.get("/health")
 def health():
     return {"status": "ok"}
+

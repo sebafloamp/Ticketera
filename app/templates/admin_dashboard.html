@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Admin - Ticketera Individual{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="/dashboard"><span class="dot"></span> Ticketera Individual</a>
+        <div class="nav-links"><a href="/dashboard">Mi dashboard</a></div>
+    </nav>
+
+    <h1 class="fade-up">Vista admin — equipo</h1>
+    {% if error %}<p class="error fade-up">{{ error }}</p>{% endif %}
+    {% if temp_password %}
+    <p class="success fade-up">Usuario creado. Password temporal: <code>{{ temp_password }}</code></p>
+    {% endif %}
+
+    <div class="ledger fade-up section-block">
+    {% for m in members %}
+        <div class="ledger-row" style="grid-template-columns:1fr auto auto auto;">
+            <a class="ledger-title" href="/admin/users/{{ m.id }}">{{ m.name }} ({{ m.email }})</a>
+            <span class="pct-num">Pendiente: {{ counts[m.id]["pendiente"] }}</span>
+            <span class="pct-num">En progreso: {{ counts[m.id]["en_progreso"] }}</span>
+            <span class="pct-num">Completado: {{ counts[m.id]["completado"] }}</span>
+        </div>
+    {% else %}
+        <div class="ledger-empty">Sin miembros todavia.</div>
+    {% endfor %}
+    </div>
+
+    <div class="card fade-up">
+        <h2>Invitar persona</h2>
+        <form method="post" action="/admin/invite" class="stack">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label>Nombre <input type="text" name="name" required></label>
+            <label>Email <input type="email" name="email" required></label>
+            <button type="submit" class="btn btn-primary">Invitar</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
