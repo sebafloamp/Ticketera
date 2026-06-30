@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.auth import hash_password, verify_password
@@ -57,7 +58,15 @@ def register_submit(
 
     user = User(email=email, name=name, password_hash=hash_password(password), role="admin")
     db.add(user)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        return templates.TemplateResponse(
+            "register.html",
+            {"request": request, "csrf_token": get_or_create_csrf_token(request), "error": "El email ya existe."},
+            status_code=400,
+        )
 
     request.session["user_id"] = user.id
     return RedirectResponse("/dashboard", status_code=303)
