@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from app.csrf import get_or_create_csrf_token
 from app.database import get_db
 from app.dependencies import get_current_user
-from app.models import Period, User
+from app.models import Period, Project, User
+from sqlalchemy.orm import selectinload
 from app.progress import calculate_project_progress
 from app.templating import templates
 
@@ -20,6 +21,7 @@ def dashboard(
 ):
     periods = (
         db.query(Period)
+        .options(selectinload(Period.projects).selectinload(Project.tickets))
         .filter(Period.owner_id == current_user.id)
         .order_by(Period.start_date.desc())
         .all()
