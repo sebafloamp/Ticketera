@@ -8,7 +8,9 @@ from starlette.middleware.sessions import SessionMiddleware
 
 from app.rate_limit import limiter
 from app.routers import auth as auth_router
+from app.routers import dashboard as dashboard_router
 from app.routers import landing as landing_router
+from app.routers import periods as periods_router
 
 BASE_DIR = os.path.dirname(__file__)
 
@@ -35,6 +37,8 @@ app.add_middleware(
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 app.include_router(landing_router.router)
 app.include_router(auth_router.router)
+app.include_router(dashboard_router.router)
+app.include_router(periods_router.router)
 
 
 @app.get("/health")
