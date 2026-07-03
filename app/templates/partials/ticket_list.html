@@ -16,7 +16,7 @@
               onsubmit="return confirm('Eliminar el ticket {{ ticket.title }}?');">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">
-            <button type="submit" class="btn btn-ghost" title="Eliminar ticket" style="color:var(--ink-soft);">&times;</button>
+            <button type="submit" class="delete-x" title="Eliminar ticket">&times;</button>
         </form>
     </li>
 {% endfor %}

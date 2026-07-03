@@ -103,6 +103,19 @@ code {
 .btn-ghost { border-color: var(--line); background: transparent; color: var(--ink); }
 .btn-ghost:hover { border-color: var(--ink); }
 
+/* ---------- Delete (x) buttons ---------- */
+.delete-x {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-size: 12px;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 4px;
+}
+.delete-x:hover { color: var(--danger); background: var(--danger-soft); }
+
 /* ---------- Cards / sections ---------- */
 .card {
   background: var(--paper-card);
@@ -164,7 +177,7 @@ input:focus-visible, select:focus-visible {
 }
 .ledger-row {
   display: grid;
-  grid-template-columns: 1fr 160px;
+  grid-template-columns: 1fr 160px auto;
   gap: 16px;
   align-items: center;
   padding: 18px 22px;
@@ -200,14 +213,16 @@ input:focus-visible, select:focus-visible {
 }
 .kanban-tasks { min-height: 40px; }
 .kanban-task {
+  position: relative;
   background: var(--paper);
   border: 1px solid var(--line);
-  padding: 10px 12px;
+  padding: 10px 26px 10px 12px;
   margin-bottom: 8px;
   border-radius: 8px;
   cursor: grab;
   font-size: 14px;
 }
+.kanban-task .delete-x { position: absolute; top: 5px; right: 5px; }
 .kanban-task:active { cursor: grabbing; }
 
 /* ---------- Task list view ---------- */

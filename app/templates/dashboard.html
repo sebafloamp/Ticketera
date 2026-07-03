@@ -33,7 +33,7 @@
             <form method="post" action="/periods/{{ period.id }}/delete"
                   onsubmit="return confirm('Eliminar el periodo {{ period.name }} y todos sus proyectos y tickets?');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                <button type="submit" class="btn btn-ghost" style="color:var(--ink-soft);">Eliminar periodo</button>
+                <button type="submit" class="delete-x" style="font-size:13px;">Eliminar periodo</button>
             </form>
         </div>
 
@@ -57,7 +57,7 @@
                 <form method="post" action="/projects/{{ project.id }}/delete"
                       onsubmit="return confirm('Eliminar el proyecto {{ project.title }} y todos sus tickets?');">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
-                    <button type="submit" class="btn btn-ghost" title="Eliminar proyecto" style="color:var(--ink-soft);">&times;</button>
+                    <button type="submit" class="delete-x" title="Eliminar proyecto">&times;</button>
                 </form>
             </div>
         {% else %}
