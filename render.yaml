@@ -1,4 +1,4 @@
-﻿services:
+services:
   - type: web
     name: ticketera-individual
     runtime: python
@@ -8,13 +8,6 @@
       - key: SECRET_KEY
         generateValue: true
       - key: DATABASE_URL
-        fromDatabase:
-          name: ticketera-db
-          property: connectionString
+        sync: false # pegar el connection string de Neon (con ?sslmode=require) en el dashboard de Render
       - key: SESSION_COOKIE_SECURE
         value: true
-
-databases:
-  - name: ticketera-db
-    databaseName: ticketera
-    user: ticketera
