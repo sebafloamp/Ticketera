@@ -27,6 +27,25 @@ def create_project(
     return RedirectResponse("/dashboard", status_code=303)
 
 
+@router.post("/{project_id}/delete")
+def delete_project(
+    project_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_csrf),
+):
+    project = (
+        db.query(Project)
+        .join(Period)
+        .filter(Project.id == project_id, Period.owner_id == current_user.id)
+        .first()
+    )
+    if project:
+        db.delete(project)
+        db.commit()
+    return RedirectResponse("/dashboard", status_code=303)
+
+
 @router.get("/{project_id}", response_class=HTMLResponse)
 def project_detail(
     project_id: int,

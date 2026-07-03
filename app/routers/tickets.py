@@ -74,6 +74,24 @@ def create_ticket(
     return RedirectResponse(f"/projects/{project_id}", status_code=303)
 
 
+@router.post("/tickets/{ticket_id}/delete")
+def delete_ticket(
+    ticket_id: int,
+    redirect_to: str = Form(None),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_csrf),
+):
+    ticket = _ticket_for_user(db, ticket_id, current_user.id)
+    if not ticket:
+        return RedirectResponse("/dashboard", status_code=303)
+    project_id = ticket.project_id
+    db.delete(ticket)
+    db.commit()
+    safe_redirect = _safe_redirect_target(redirect_to)
+    return RedirectResponse(safe_redirect or f"/projects/{project_id}", status_code=303)
+
+
 @router.post("/tickets/{ticket_id}/move")
 def move_ticket(
     ticket_id: int,

@@ -103,3 +103,54 @@ def test_board_endpoint_renders_kanban_by_default_and_list_on_request(client, db
     # session persistence: next request without ?view= should still return list
     listing2 = client.get(f"/projects/{project.id}/board")
     assert "ticket-list" in listing2.text
+
+
+def test_delete_ticket_removes_it_and_redirects_to_project(client, db_session):
+    project = _create_project(client, db_session)
+    detail = client.get(f"/projects/{project.id}")
+    token = _extract_csrf(detail.text)
+    client.post("/tickets", data={"project_id": project.id, "title": "Borrable", "csrf_token": token})
+    ticket = db_session.query(Ticket).filter(Ticket.title == "Borrable").first()
+
+    response = client.post(
+        f"/tickets/{ticket.id}/delete",
+        data={"csrf_token": token},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert response.headers["location"] == f"/projects/{project.id}"
+    assert db_session.query(Ticket).filter(Ticket.id == ticket.id).first() is None
+
+
+def test_delete_project_cascades_tickets(client, db_session):
+    project = _create_project(client, db_session)
+    detail = client.get(f"/projects/{project.id}")
+    token = _extract_csrf(detail.text)
+    client.post("/tickets", data={"project_id": project.id, "title": "Hijo", "csrf_token": token})
+
+    response = client.post(
+        f"/projects/{project.id}/delete",
+        data={"csrf_token": token},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert db_session.query(Project).filter(Project.id == project.id).first() is None
+    assert db_session.query(Ticket).filter(Ticket.project_id == project.id).count() == 0
+
+
+def test_delete_period_cascades_projects_and_tickets(client, db_session):
+    project = _create_project(client, db_session)
+    period_id = project.period_id
+    detail = client.get(f"/projects/{project.id}")
+    token = _extract_csrf(detail.text)
+    client.post("/tickets", data={"project_id": project.id, "title": "Nieto", "csrf_token": token})
+
+    response = client.post(
+        f"/periods/{period_id}/delete",
+        data={"csrf_token": token},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+    assert db_session.query(Period).filter(Period.id == period_id).first() is None
+    assert db_session.query(Project).count() == 0
+    assert db_session.query(Ticket).count() == 0

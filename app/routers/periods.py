@@ -33,6 +33,20 @@ def create_period(
     return RedirectResponse("/dashboard", status_code=303)
 
 
+@router.post("/{period_id}/delete")
+def delete_period(
+    period_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_csrf),
+):
+    period = db.query(Period).filter(Period.id == period_id, Period.owner_id == current_user.id).first()
+    if period:
+        db.delete(period)
+        db.commit()
+    return RedirectResponse("/dashboard", status_code=303)
+
+
 @router.post("/{period_id}/close")
 def close_period(
     period_id: int,

@@ -28,7 +28,14 @@
 
     {% for period in periods %}
     <section class="section-block fade-up">
-        <h2>{{ period.name }} {% if not period.is_active %}(cerrado){% endif %}</h2>
+        <div class="row" style="align-items:center;justify-content:space-between;">
+            <h2>{{ period.name }} {% if not period.is_active %}(cerrado){% endif %}</h2>
+            <form method="post" action="/periods/{{ period.id }}/delete"
+                  onsubmit="return confirm('Eliminar el periodo {{ period.name }} y todos sus proyectos y tickets?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="btn btn-ghost" style="color:var(--ink-soft);">Eliminar periodo</button>
+            </form>
+        </div>
 
         {% if period.is_active %}
         <form method="post" action="/projects" class="row" style="margin-bottom:14px;">
@@ -47,6 +54,11 @@
                     <div class="bar-track"><div class="bar-fill {% if progress[project.id] >= 100 %}is-done{% endif %}" data-target="{{ progress[project.id] }}"></div></div>
                     <span class="pct-num">{{ progress[project.id] }}%</span>
                 </div>
+                <form method="post" action="/projects/{{ project.id }}/delete"
+                      onsubmit="return confirm('Eliminar el proyecto {{ project.title }} y todos sus tickets?');">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <button type="submit" class="btn btn-ghost" title="Eliminar proyecto" style="color:var(--ink-soft);">&times;</button>
+                </form>
             </div>
         {% else %}
             <div class="ledger-empty">Sin proyectos todavia.</div>

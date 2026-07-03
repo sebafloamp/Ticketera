@@ -12,6 +12,12 @@
             </select>
             {{ ticket.title }} ({{ ticket.priority }}{% if ticket.due_date %}, {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
         </form>
+        <form method="post" action="/tickets/{{ ticket.id }}/delete" style="display:inline"
+              onsubmit="return confirm('Eliminar el ticket {{ ticket.title }}?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">
+            <button type="submit" class="btn btn-ghost" title="Eliminar ticket" style="color:var(--ink-soft);">&times;</button>
+        </form>
     </li>
 {% endfor %}
 </ul>
