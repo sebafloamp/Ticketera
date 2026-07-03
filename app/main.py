@@ -1,9 +1,12 @@
 ﻿import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.rate_limit import limiter
@@ -45,6 +48,20 @@ app.include_router(periods_router.router)
 app.include_router(projects_router.router)
 app.include_router(tickets_router.router)
 app.include_router(admin_router.router)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def browser_friendly_errors(request: Request, exc: StarletteHTTPException):
+    if request.headers.get("hx-request") == "true" and exc.status_code == 401:
+        # htmx swallows redirects normales; HX-Redirect fuerza navegacion completa
+        return Response(status_code=200, headers={"HX-Redirect": "/login"})
+    wants_html = "text/html" in request.headers.get("accept", "")
+    if wants_html:
+        if exc.status_code == 401:
+            return RedirectResponse("/login", status_code=303)
+        if exc.status_code in (403, 404):
+            return RedirectResponse("/dashboard", status_code=303)
+    return await http_exception_handler(request, exc)
 
 
 @app.get("/health")
