@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Mi perfil - Ticketera Individual{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="/dashboard"><span class="dot"></span> Ticketera Individual</a>
+        <div class="nav-links"><a href="/dashboard">Dashboard</a></div>
+    </nav>
+
+    <h1 class="fade-up">Mi perfil</h1>
+    {% if error %}<p class="error fade-up">{{ error }}</p>{% endif %}
+    {% if success %}<p class="success fade-up">{{ success }}</p>{% endif %}
+
+    <div class="card fade-up section-block">
+        <h2>{{ user.name }}</h2>
+        <p style="color:var(--ink-soft);font-size:14px;margin:0 0 4px;">{{ user.email }}</p>
+        <p style="color:var(--ink-soft);font-size:13px;margin:0;">
+            Cuenta creada: {{ user.created_at.strftime("%Y-%m-%d") if user.created_at else "—" }}
+        </p>
+        {% if age is not none %}
+        <p style="font-size:14px;margin:8px 0 0;">Edad: {{ age }} años</p>
+        {% endif %}
+        {% if birthday_today %}
+        <p class="success" style="margin-top:8px;">🎉 ¡Feliz cumpleaños, {{ user.name }}!</p>
+        {% endif %}
+    </div>
+
+    <div class="card fade-up section-block">
+        <h2>Datos basicos</h2>
+        <form method="post" action="/profile" class="stack">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label>Fecha de nacimiento
+                <input type="date" name="birth_date" value="{{ user.birth_date.isoformat() if user.birth_date else '' }}">
+            </label>
+            <label>Telefono (para recordatorios futuros)
+                <input type="text" name="phone" maxlength="30" value="{{ user.phone or '' }}" placeholder="+56 9 1234 5678">
+            </label>
+            <label>Cargo
+                <input type="text" name="job_title" maxlength="100" value="{{ user.job_title or '' }}" placeholder="Ej: Analista de soporte">
+            </label>
+            <button type="submit" class="btn btn-primary">Guardar datos</button>
+        </form>
+    </div>
+
+    <div class="card fade-up section-block">
+        <h2>Cambiar password</h2>
+        <form method="post" action="/profile/password" class="stack">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label>Password actual <input type="password" name="current_password" required></label>
+            <label>Password nueva <input type="password" name="new_password" required minlength="8"></label>
+            <label>Confirmar password nueva <input type="password" name="confirm_password" required minlength="8"></label>
+            <button type="submit" class="btn btn-primary">Cambiar password</button>
+        </form>
+    </div>
+
+    <div class="card fade-up section-block">
+        <h2>Historial de progreso</h2>
+        {% if period_progress %}
+        <div class="ledger">
+        {% for period, pct in period_progress %}
+            <div class="ledger-row">
+                <span>{{ period.name }} {% if not period.is_active %}(cerrado){% endif %}</span>
+                <div class="pct-cell">
+                    <div class="bar-track"><div class="bar-fill {% if pct >= 100 %}is-done{% endif %}" data-target="{{ pct }}"></div></div>
+                    <span class="pct-num">{{ pct }}%</span>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        <p style="margin-top:14px;font-size:15px;">
+            <strong>Promedio historico:</strong> {{ progress_average }}%
+        </p>
+        {% else %}
+        <p style="color:var(--ink-soft);">Sin periodos todavia.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

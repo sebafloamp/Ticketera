@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -18,6 +18,9 @@ class User(Base):
     password_hash = Column(String, nullable=False)
     name = Column(String, nullable=False)
     role = Column(String, nullable=False, default="member")  # "admin" | "member"
+    birth_date = Column(Date, nullable=True)
+    phone = Column(String, nullable=True)
+    job_title = Column(String, nullable=True)
     created_at = Column(DateTime, default=utcnow)
 
 

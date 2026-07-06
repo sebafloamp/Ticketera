@@ -6,6 +6,7 @@
         <a class="brand" href="/dashboard"><span class="dot"></span> Ticketera Individual</a>
         <div class="nav-links">
             {% if is_admin %}<a href="/admin">Admin</a>{% endif %}
+            <a href="/profile">Mi perfil</a>
             <form method="post" action="/logout">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                 <button type="submit" class="btn btn-ghost">Salir</button>
