@@ -97,6 +97,22 @@ def invite_member(
     )
 
 
+@router.post("/users/{user_id}/role")
+def change_user_role(
+    user_id: int,
+    role: str = Form(...),
+    admin_user: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_csrf),
+):
+    if role in ("admin", "member") and user_id != admin_user.id:
+        member = db.query(User).filter(User.id == user_id).first()
+        if member:
+            member.role = role
+            db.commit()
+    return RedirectResponse("/admin", status_code=303)
+
+
 @router.get("/users/{user_id}", response_class=HTMLResponse)
 def admin_user_periods(
     user_id: int,

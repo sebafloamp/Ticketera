@@ -15,9 +15,15 @@
 
     <div class="ledger fade-up section-block">
     {% for m in members %}
-        <div class="ledger-row" style="grid-template-columns:1fr 70px 160px auto auto auto;">
+        <div class="ledger-row" style="grid-template-columns:1fr 110px 160px auto auto auto;">
             <a class="ledger-title" href="/admin/users/{{ m.id }}">{{ m.name }} ({{ m.email }})</a>
-            <span class="pct-num" style="text-transform:uppercase;">{{ m.role }}</span>
+            <form method="post" action="/admin/users/{{ m.id }}/role">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <select name="role" onchange="this.form.submit()" style="font-size:12px;text-transform:uppercase;padding:4px 6px;">
+                    <option value="member" {% if m.role == "member" %}selected{% endif %}>member</option>
+                    <option value="admin" {% if m.role == "admin" %}selected{% endif %}>admin</option>
+                </select>
+            </form>
             <div class="pct-cell">
                 <div class="bar-track"><div class="bar-fill {% if user_progress[m.id] >= 100 %}is-done{% endif %}" data-target="{{ user_progress[m.id] }}"></div></div>
                 <span class="pct-num">{{ user_progress[m.id] }}%</span>

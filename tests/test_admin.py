@@ -215,3 +215,68 @@ def test_invalid_role_value_defaults_to_member(client, db_session):
 
     user = db_session.query(User).filter(User.email == "raro@example.com").first()
     assert user.role == "member"
+
+
+def test_admin_can_promote_member_to_admin(client, db_session):
+    register_first_admin(client)
+    _invite_member(client)
+
+    from app.models import User
+
+    member = db_session.query(User).filter(User.email == "member@example.com").first()
+    token = _extract_csrf(client.get("/admin").text)
+    response = client.post(
+        f"/admin/users/{member.id}/role",
+        data={"role": "admin", "csrf_token": token},
+        follow_redirects=False,
+    )
+    assert response.status_code == 303
+
+    db_session.refresh(member)
+    assert member.role == "admin"
+
+
+def test_admin_can_demote_admin_to_member(client, db_session):
+    register_first_admin(client)
+    page = client.get("/admin")
+    token = _extract_csrf(page.text)
+    client.post(
+        "/admin/invite",
+        data={"name": "Segundo Admin", "email": "admin2@example.com", "role": "admin", "csrf_token": token},
+    )
+
+    from app.models import User
+
+    second_admin = db_session.query(User).filter(User.email == "admin2@example.com").first()
+    token = _extract_csrf(client.get("/admin").text)
+    client.post(f"/admin/users/{second_admin.id}/role", data={"role": "member", "csrf_token": token})
+
+    db_session.refresh(second_admin)
+    assert second_admin.role == "member"
+
+
+def test_admin_cannot_change_own_role_via_endpoint(client, db_session):
+    register_first_admin(client)
+
+    from app.models import User
+
+    admin_user = db_session.query(User).filter(User.email == "admin@example.com").first()
+    token = _extract_csrf(client.get("/admin").text)
+    client.post(f"/admin/users/{admin_user.id}/role", data={"role": "member", "csrf_token": token})
+
+    db_session.refresh(admin_user)
+    assert admin_user.role == "admin"  # unchanged -- can't demote yourself
+
+
+def test_role_change_rejects_invalid_value(client, db_session):
+    register_first_admin(client)
+    _invite_member(client)
+
+    from app.models import User
+
+    member = db_session.query(User).filter(User.email == "member@example.com").first()
+    token = _extract_csrf(client.get("/admin").text)
+    client.post(f"/admin/users/{member.id}/role", data={"role": "superadmin", "csrf_token": token})
+
+    db_session.refresh(member)
+    assert member.role == "member"  # unchanged
