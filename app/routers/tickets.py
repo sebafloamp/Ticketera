@@ -63,7 +63,7 @@ def create_ticket(
             Ticket(
                 project_id=project.id,
                 title=title,
-                description=description,
+                description=description.strip()[:100],
                 status="pendiente",
                 priority=priority if priority in ("alta", "media", "baja") else "media",
                 due_date=datetime.fromisoformat(due_date) if due_date else None,

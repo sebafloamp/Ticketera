@@ -11,6 +11,7 @@
                 <option value="completado" {% if ticket.status == "completado" %}selected{% endif %}>completado</option>
             </select>
             {{ ticket.title }} ({{ ticket.priority }}{% if ticket.due_date %}, {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
+            {% if ticket.description %}<span style="font-size:12px;color:var(--ink-soft);">— {{ ticket.description }}</span>{% endif %}
         </form>
         <form method="post" action="/tickets/{{ ticket.id }}/delete" style="display:inline"
               onsubmit="return confirm('Eliminar el ticket {{ ticket.title }}?');">

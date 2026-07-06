@@ -9,6 +9,7 @@
                 {{ ticket.title }}
                 <span class="pct-num" style="text-transform:uppercase;font-size:11px;">{{ ticket.priority }}</span>
                 {% if ticket.due_date %}<span style="font-size:11px;color:var(--ink-soft);">{{ ticket.due_date.strftime("%Y-%m-%d") }}</span>{% endif %}
+                {% if ticket.description %}<div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">{{ ticket.description }}</div>{% endif %}
                 <button type="button" class="task-delete delete-x" data-ticket-id="{{ ticket.id }}" data-ticket-title="{{ ticket.title }}"
                         title="Eliminar ticket">&times;</button>
             </div>

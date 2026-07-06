@@ -30,12 +30,12 @@ def export_tickets(db, path):
         writer = csv.writer(f)
         writer.writerow([
             "usuario_email", "usuario_nombre", "periodo", "proyecto", "ticket",
-            "descripcion", "estado", "prioridad", "fecha_limite", "creado", "actualizado",
+            "estado", "prioridad", "fecha_limite", "creado", "actualizado",
         ])
         for ticket, project, period, user in rows:
             writer.writerow([
                 user.email, user.name, period.name, project.title, ticket.title,
-                ticket.description, ticket.status, ticket.priority,
+                ticket.status, ticket.priority,
                 ticket.due_date.isoformat() if ticket.due_date else "",
                 ticket.created_at.isoformat() if ticket.created_at else "",
                 ticket.updated_at.isoformat() if ticket.updated_at else "",

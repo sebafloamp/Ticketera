@@ -23,6 +23,7 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="project_id" value="{{ project.id }}">
             <input type="text" name="title" placeholder="Nuevo ticket" required>
+            <input type="text" name="description" placeholder="Descripcion breve (opcional)" maxlength="100">
             <select name="priority">
                 <option value="baja">baja</option>
                 <option value="media" selected>media</option>
