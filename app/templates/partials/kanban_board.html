@@ -10,8 +10,14 @@
                 <span class="pct-num" style="text-transform:uppercase;font-size:11px;">{{ ticket.priority }}</span>
                 {% if ticket.due_date %}<span style="font-size:11px;color:var(--ink-soft);">{{ ticket.due_date.strftime("%Y-%m-%d") }}</span>{% endif %}
                 {% if ticket.description %}<div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">{{ ticket.description }}</div>{% endif %}
-                <button type="button" class="task-edit delete-x" data-ticket-id="{{ ticket.id }}" data-ticket-description="{{ ticket.description }}"
-                        title="Editar descripcion" style="right:28px;">&#9998;</button>
+                <form class="edit-desc-form" method="post" action="/tickets/{{ ticket.id }}/edit">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">
+                    <input type="text" name="description" maxlength="100" value="{{ ticket.description }}"
+                           placeholder="Descripcion breve (max 100)">
+                    <button type="submit" class="btn btn-primary edit-desc-save">Guardar</button>
+                </form>
+                <button type="button" class="task-edit delete-x" title="Editar descripcion" style="right:28px;">&#9998;</button>
                 <button type="button" class="task-delete delete-x" data-ticket-id="{{ ticket.id }}" data-ticket-title="{{ ticket.title }}"
                         title="Eliminar ticket">&times;</button>
             </div>
@@ -27,7 +33,8 @@ document.querySelectorAll(".kanban-tasks").forEach(function (column) {
     new Sortable(column, {
         group: "kanban",
         animation: 150,
-        filter: ".task-delete, .task-edit",
+        filter: ".task-delete, .task-edit, .edit-desc-form",
+        preventOnFilter: false,
         onEnd: function (evt) {
             var ticketId = evt.item.getAttribute("data-task-id");
             var newStatus = evt.to.getAttribute("data-status");
@@ -46,19 +53,9 @@ document.querySelectorAll(".kanban-tasks").forEach(function (column) {
 
 document.querySelectorAll(".task-edit").forEach(function (btn) {
     btn.addEventListener("click", function () {
-        var current = btn.getAttribute("data-ticket-description") || "";
-        var nueva = prompt("Descripcion breve (max 100 caracteres):", current);
-        if (nueva === null) return;
-        fetch("/tickets/" + btn.getAttribute("data-ticket-id") + "/edit", {
-            method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: "description=" + encodeURIComponent(nueva.slice(0, 100)) + "&csrf_token=" + encodeURIComponent(csrfToken),
-        }).then(function () {
-            location.reload();
-        }).catch(function (err) {
-            console.error("edit failed:", err);
-            location.reload();
-        });
+        var form = btn.parentElement.querySelector(".edit-desc-form");
+        var visible = form.classList.toggle("open");
+        if (visible) form.querySelector('input[name="description"]').focus();
     });
 });
 
