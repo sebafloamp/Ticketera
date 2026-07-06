@@ -22,6 +22,10 @@
             <input type="date" name="start_date" required>
             <input type="date" name="end_date" required>
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <label style="flex-direction:row;align-items:center;gap:6px;font-size:13.5px;">
+                <input type="checkbox" name="carry_over" value="1" checked>
+                Arrastrar proyectos con tickets pendientes
+            </label>
             <button type="submit" class="btn btn-primary">Crear periodo</button>
         </form>
     </div>
