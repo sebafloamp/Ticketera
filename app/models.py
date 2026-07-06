@@ -21,6 +21,7 @@ class User(Base):
     birth_date = Column(Date, nullable=True)
     phone = Column(String, nullable=True)
     job_title = Column(String, nullable=True)
+    reminder_day = Column(Integer, nullable=True)  # 0=lunes .. 6=domingo, None=sin recordatorio
     created_at = Column(DateTime, default=utcnow)
 
 

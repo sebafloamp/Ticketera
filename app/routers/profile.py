@@ -10,7 +10,9 @@ from app.csrf import get_or_create_csrf_token, require_csrf
 from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Period, User
+from app.phone import is_valid_e164
 from app.progress import calculate_period_progress, calculate_user_progress
+from app.reminders import WEEKDAY_NAMES
 from app.templating import templates
 
 router = APIRouter(prefix="/profile")
@@ -39,6 +41,7 @@ def _profile_context(request: Request, db: Session, current_user: User, error=No
         "birthday_today": birthday_today,
         "period_progress": period_progress,
         "progress_average": progress_average,
+        "weekday_names": WEEKDAY_NAMES,
         "csrf_token": get_or_create_csrf_token(request),
         "error": error,
         "success": success,
@@ -60,6 +63,7 @@ def update_profile(
     birth_date: str = Form(""),
     phone: str = Form(""),
     job_title: str = Form(""),
+    reminder_day: str = Form(""),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     _: None = Depends(require_csrf),
@@ -76,8 +80,20 @@ def update_profile(
     else:
         current_user.birth_date = None
 
-    current_user.phone = phone.strip()[:30] or None
+    phone = phone.strip()
+    if phone and not is_valid_e164(phone):
+        return templates.TemplateResponse(
+            "profile.html",
+            _profile_context(
+                request, db, current_user,
+                error="El telefono debe estar en formato internacional, ej: +56912345678.",
+            ),
+            status_code=400,
+        )
+    current_user.phone = phone or None
+
     current_user.job_title = job_title.strip()[:100] or None
+    current_user.reminder_day = int(reminder_day) if reminder_day in ("0", "1", "2", "3", "4", "5", "6") else None
     db.commit()
 
     return templates.TemplateResponse(

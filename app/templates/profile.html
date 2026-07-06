@@ -32,11 +32,19 @@
             <label>Fecha de nacimiento
                 <input type="date" name="birth_date" value="{{ user.birth_date.isoformat() if user.birth_date else '' }}">
             </label>
-            <label>Telefono (para recordatorios futuros)
-                <input type="text" name="phone" maxlength="30" value="{{ user.phone or '' }}" placeholder="+56 9 1234 5678">
+            <label>Telefono (formato internacional, para recordatorios)
+                <input type="text" name="phone" maxlength="30" value="{{ user.phone or '' }}" placeholder="+56912345678">
             </label>
             <label>Cargo
                 <input type="text" name="job_title" maxlength="100" value="{{ user.job_title or '' }}" placeholder="Ej: Analista de soporte">
+            </label>
+            <label>Dia de recordatorio semanal (email)
+                <select name="reminder_day">
+                    <option value="" {% if user.reminder_day is none %}selected{% endif %}>Sin recordatorio</option>
+                    {% for day_name in weekday_names %}
+                    <option value="{{ loop.index0 }}" {% if user.reminder_day == loop.index0 %}selected{% endif %}>{{ day_name }}</option>
+                    {% endfor %}
+                </select>
             </label>
             <button type="submit" class="btn btn-primary">Guardar datos</button>
         </form>

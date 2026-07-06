@@ -1,0 +1,23 @@
+name: Send weekly reminders
+
+on:
+  schedule:
+    # 13:00 UTC ~ 09:00/10:00 Chile (depende de horario de verano). Ajustar si hace falta.
+    - cron: "0 13 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  trigger-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call reminders endpoint
+        run: |
+          response=$(curl -s -o response.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.REMINDER_TASK_TOKEN }}" \
+            "${{ secrets.RENDER_APP_URL }}/internal/reminders/run")
+          echo "HTTP status: $response"
+          cat response.json
+          if [ "$response" -ge 400 ]; then
+            echo "Reminder trigger failed"
+            exit 1
+          fi

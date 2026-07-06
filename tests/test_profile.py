@@ -22,7 +22,7 @@ def test_update_profile_sets_birth_date_phone_and_job_title(client, db_session):
         "/profile",
         data={
             "birth_date": "1990-05-10",
-            "phone": "+56 9 1234 5678",
+            "phone": "+56912345678",
             "job_title": "Analista de soporte",
             "csrf_token": token,
         },
@@ -30,14 +30,14 @@ def test_update_profile_sets_birth_date_phone_and_job_title(client, db_session):
     assert response.status_code == 200
     assert "Datos actualizados" in response.text
     assert "Analista de soporte" in response.text
-    assert "+56 9 1234 5678" in response.text
+    assert "+56912345678" in response.text
     assert "Edad:" in response.text
 
     from app.models import User
 
     user = db_session.query(User).filter(User.email == "admin@example.com").first()
     assert user.birth_date == date(1990, 5, 10)
-    assert user.phone == "+56 9 1234 5678"
+    assert user.phone == "+56912345678"
     assert user.job_title == "Analista de soporte"
 
 
@@ -156,3 +156,66 @@ def test_profile_shows_progress_history_with_average(client, db_session):
     assert "Q1 2026" in page.text
     assert 'data-target="50.0"' in page.text
     assert "50.0%" in page.text  # single period -> average equals its own pct
+
+
+def test_update_profile_rejects_invalid_phone_format(client, db_session):
+    register_first_admin(client)
+    token = _extract_csrf(client.get("/profile").text)
+    response = client.post(
+        "/profile",
+        data={"birth_date": "", "phone": "56912345678", "job_title": "", "csrf_token": token},
+    )
+    assert response.status_code == 400
+    assert "formato internacional" in response.text
+
+    from app.models import User
+
+    user = db_session.query(User).filter(User.email == "admin@example.com").first()
+    assert user.phone is None
+
+
+def test_update_profile_accepts_valid_e164_phone(client, db_session):
+    register_first_admin(client)
+    token = _extract_csrf(client.get("/profile").text)
+    client.post(
+        "/profile",
+        data={"birth_date": "", "phone": "+56912345678", "job_title": "", "csrf_token": token},
+    )
+
+    from app.models import User
+
+    user = db_session.query(User).filter(User.email == "admin@example.com").first()
+    assert user.phone == "+56912345678"
+
+
+def test_update_profile_saves_reminder_day(client, db_session):
+    register_first_admin(client)
+    token = _extract_csrf(client.get("/profile").text)
+    client.post(
+        "/profile",
+        data={"birth_date": "", "phone": "", "job_title": "", "reminder_day": "2", "csrf_token": token},
+    )
+
+    from app.models import User
+
+    user = db_session.query(User).filter(User.email == "admin@example.com").first()
+    assert user.reminder_day == 2
+
+
+def test_update_profile_reminder_day_can_be_cleared(client, db_session):
+    register_first_admin(client)
+    token = _extract_csrf(client.get("/profile").text)
+    client.post(
+        "/profile",
+        data={"birth_date": "", "phone": "", "job_title": "", "reminder_day": "2", "csrf_token": token},
+    )
+    token = _extract_csrf(client.get("/profile").text)
+    client.post(
+        "/profile",
+        data={"birth_date": "", "phone": "", "job_title": "", "reminder_day": "", "csrf_token": token},
+    )
+
+    from app.models import User
+
+    user = db_session.query(User).filter(User.email == "admin@example.com").first()
+    assert user.reminder_day is None
