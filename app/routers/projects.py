@@ -50,6 +50,7 @@ def delete_project(
 def project_detail(
     project_id: int,
     request: Request,
+    view: str = "",
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
@@ -62,6 +63,7 @@ def project_detail(
     if not project:
         return RedirectResponse("/dashboard", status_code=303)
 
+    selected_view = view if view in ("kanban", "list") else request.session.get("ticket_view", "kanban")
     token = get_or_create_csrf_token(request)
     return templates.TemplateResponse(
         "project_detail.html",
@@ -69,6 +71,7 @@ def project_detail(
             "request": request,
             "project": project,
             "project_progress": calculate_project_progress(project),
+            "view": selected_view,
             "csrf_token": token,
         },
     )

@@ -14,8 +14,8 @@
     </div>
 
     <div class="fade-up nav-links" style="margin-bottom:20px;">
-        <a href="?view=kanban" class="btn btn-ghost">Kanban</a>
-        <a href="?view=list" class="btn btn-ghost">Lista</a>
+        <a href="?view=kanban" class="btn {% if view == 'kanban' %}btn-primary{% else %}btn-ghost{% endif %}">Kanban</a>
+        <a href="?view=list" class="btn {% if view == 'list' %}btn-primary{% else %}btn-ghost{% endif %}">Lista</a>
     </div>
 
     <div class="card fade-up" style="margin-bottom:24px;">
@@ -34,7 +34,7 @@
     </div>
 
     <div id="ticket-board" class="fade-up"
-         hx-get="/projects/{{ project.id }}/board"
+         hx-get="/projects/{{ project.id }}/board?view={{ view }}"
          hx-trigger="load"
          hx-swap="innerHTML">
     </div>

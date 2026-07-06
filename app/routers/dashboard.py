@@ -7,7 +7,7 @@ from app.database import get_db
 from app.dependencies import get_current_user
 from app.models import Period, Project, User
 from sqlalchemy.orm import selectinload
-from app.progress import calculate_project_progress
+from app.progress import calculate_period_progress, calculate_project_progress
 from app.templating import templates
 
 router = APIRouter()
@@ -31,6 +31,7 @@ def dashboard(
         for period in periods
         for project in period.projects
     }
+    period_progress = {period.id: calculate_period_progress(period) for period in periods}
     token = get_or_create_csrf_token(request)
     return templates.TemplateResponse(
         "dashboard.html",
@@ -38,6 +39,7 @@ def dashboard(
             "request": request,
             "periods": periods,
             "progress": progress,
+            "period_progress": period_progress,
             "is_admin": current_user.role == "admin",
             "csrf_token": token,
         },
