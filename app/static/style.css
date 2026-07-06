@@ -115,6 +115,7 @@ code {
   border-radius: 4px;
 }
 .delete-x:hover { color: var(--danger); background: var(--danger-soft); }
+.task-edit:hover { color: var(--teal); background: var(--teal-soft); }
 
 /* ---------- Cards / sections ---------- */
 .card {

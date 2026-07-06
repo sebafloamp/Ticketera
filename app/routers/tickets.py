@@ -92,6 +92,25 @@ def delete_ticket(
     return RedirectResponse(safe_redirect or f"/projects/{project_id}", status_code=303)
 
 
+@router.post("/tickets/{ticket_id}/edit")
+def edit_ticket(
+    ticket_id: int,
+    description: str = Form(""),
+    redirect_to: str = Form(None),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    _: None = Depends(require_csrf),
+):
+    safe_redirect = _safe_redirect_target(redirect_to)
+    ticket = _ticket_for_user(db, ticket_id, current_user.id)
+    if ticket:
+        ticket.description = description.strip()[:100]
+        db.commit()
+    if safe_redirect:
+        return RedirectResponse(safe_redirect, status_code=303)
+    return Response(status_code=204)
+
+
 @router.post("/tickets/{ticket_id}/move")
 def move_ticket(
     ticket_id: int,

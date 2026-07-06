@@ -13,6 +13,9 @@
             {{ ticket.title }} ({{ ticket.priority }}{% if ticket.due_date %}, {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
             {% if ticket.description %}<span style="font-size:12px;color:var(--ink-soft);">— {{ ticket.description }}</span>{% endif %}
         </form>
+        <button type="button" class="ticket-edit delete-x task-edit" data-ticket-id="{{ ticket.id }}"
+                data-ticket-description="{{ ticket.description }}" data-project-id="{{ ticket.project_id }}"
+                title="Editar descripcion">&#9998;</button>
         <form method="post" action="/tickets/{{ ticket.id }}/delete" style="display:inline"
               onsubmit="return confirm('Eliminar el ticket {{ ticket.title }}?');">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
@@ -22,3 +25,25 @@
     </li>
 {% endfor %}
 </ul>
+
+<script>
+(function () {
+    var csrfTokenList = "{{ csrf_token }}";
+    document.querySelectorAll(".ticket-edit").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+            var current = btn.getAttribute("data-ticket-description") || "";
+            var nueva = prompt("Descripcion breve (max 100 caracteres):", current);
+            if (nueva === null) return;
+            fetch("/tickets/" + btn.getAttribute("data-ticket-id") + "/edit", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "description=" + encodeURIComponent(nueva.slice(0, 100)) + "&csrf_token=" + encodeURIComponent(csrfTokenList),
+            }).then(function () {
+                location.reload();
+            }).catch(function () {
+                location.reload();
+            });
+        });
+    });
+})();
+</script>

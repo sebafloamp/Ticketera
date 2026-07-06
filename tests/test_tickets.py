@@ -154,3 +154,23 @@ def test_delete_period_cascades_projects_and_tickets(client, db_session):
     assert db_session.query(Period).filter(Period.id == period_id).first() is None
     assert db_session.query(Project).count() == 0
     assert db_session.query(Ticket).count() == 0
+
+
+def test_edit_ticket_sets_description_truncated_to_100(client, db_session):
+    project = _create_project(client, db_session)
+    detail = client.get(f"/projects/{project.id}")
+    token = _extract_csrf(detail.text)
+    client.post("/tickets", data={"project_id": project.id, "title": "Enviar cotizacion", "csrf_token": token})
+
+    ticket = db_session.query(Ticket).filter(Ticket.title == "Enviar cotizacion").first()
+
+    board = client.get(f"/projects/{project.id}/board")
+    token = _extract_csrf(board.text)
+    response = client.post(
+        f"/tickets/{ticket.id}/edit",
+        data={"description": "x" * 150, "csrf_token": token},
+    )
+    assert response.status_code == 204
+
+    db_session.refresh(ticket)
+    assert len(ticket.description) == 100
