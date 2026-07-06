@@ -15,3 +15,11 @@ def calculate_period_progress(period: Period) -> float:
         return 0.0
     total = sum(calculate_project_progress(project) for project in projects)
     return round(total / len(projects), 1)
+
+
+def calculate_user_progress(periods: list[Period]) -> float:
+    """Promedio del avance de todos los periodos del usuario (historicos incluidos)."""
+    if not periods:
+        return 0.0
+    total = sum(calculate_period_progress(period) for period in periods)
+    return round(total / len(periods), 1)

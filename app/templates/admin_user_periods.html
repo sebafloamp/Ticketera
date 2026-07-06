@@ -11,6 +11,15 @@
     {% for period in periods %}
     <section class="section-block fade-up">
         <h2>{{ period.name }} {% if not period.is_active %}(cerrado){% endif %}</h2>
+        <div class="pct-cell" style="max-width:320px;margin-bottom:8px;">
+            <div class="bar-track"><div class="bar-fill {% if period_progress[period.id] >= 100 %}is-done{% endif %}" data-target="{{ period_progress[period.id] }}"></div></div>
+            <span class="pct-num">{{ period_progress[period.id] }}%</span>
+        </div>
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 14px;">
+            Pendiente: {{ period_counts[period.id]["pendiente"] }} ·
+            En progreso: {{ period_counts[period.id]["en_progreso"] }} ·
+            Completado: {{ period_counts[period.id]["completado"] }}
+        </p>
         <div class="ledger">
         {% for project in period.projects %}
             <div class="ledger-row">

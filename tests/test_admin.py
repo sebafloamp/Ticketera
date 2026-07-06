@@ -100,3 +100,62 @@ def test_admin_can_view_members_periods_readonly(client, db_session):
     assert response.status_code == 200
     assert "Q1 2026" in response.text
     assert "<form" not in response.text
+
+
+def _seed_member_with_period(client, db_session, temp_password):
+    """As the invited member: one period, one project, 1 completado + 1 pendiente ticket."""
+    from app.models import Period, Project, Ticket, User
+
+    token = _extract_csrf(client.get("/dashboard").text)
+    client.post("/logout", data={"csrf_token": token})
+    login(client, "member@example.com", temp_password)
+
+    token = _extract_csrf(client.get("/dashboard").text)
+    client.post(
+        "/periods",
+        data={"name": "Q1 2026", "start_date": "2026-01-01", "end_date": "2026-03-31", "csrf_token": token},
+    )
+    period = db_session.query(Period).filter(Period.name == "Q1 2026").first()
+    token = _extract_csrf(client.get("/dashboard").text)
+    client.post("/projects", data={"period_id": period.id, "title": "Cliente X", "csrf_token": token})
+    project = db_session.query(Project).filter(Project.title == "Cliente X").first()
+    db_session.add_all(
+        [
+            Ticket(project_id=project.id, title="Hecho", status="completado", order=0),
+            Ticket(project_id=project.id, title="Falta", status="pendiente", order=1),
+        ]
+    )
+    db_session.commit()
+
+    token = _extract_csrf(client.get("/dashboard").text)
+    client.post("/logout", data={"csrf_token": token})
+    login(client, "admin@example.com", "adminpass123")
+    return period
+
+
+def test_admin_dashboard_shows_user_progress_bar(client, db_session):
+    register_first_admin(client)
+    temp_password = _invite_member(client)
+    _seed_member_with_period(client, db_session, temp_password)
+
+    page = client.get("/admin")
+    assert page.status_code == 200
+    # 1 of 2 tickets done in the only project of the only period -> 50.0%
+    assert 'data-target="50.0"' in page.text
+    assert "50.0%" in page.text
+
+
+def test_admin_user_view_shows_period_progress_and_counts(client, db_session):
+    from app.models import User
+
+    register_first_admin(client)
+    temp_password = _invite_member(client)
+    _seed_member_with_period(client, db_session, temp_password)
+
+    member = db_session.query(User).filter(User.email == "member@example.com").first()
+    page = client.get(f"/admin/users/{member.id}")
+    assert page.status_code == 200
+    assert 'data-target="50.0"' in page.text
+    assert "Pendiente: 1" in page.text
+    assert "En progreso: 0" in page.text
+    assert "Completado: 1" in page.text

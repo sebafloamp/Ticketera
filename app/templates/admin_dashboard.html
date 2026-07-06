@@ -15,8 +15,12 @@
 
     <div class="ledger fade-up section-block">
     {% for m in members %}
-        <div class="ledger-row" style="grid-template-columns:1fr auto auto auto;">
+        <div class="ledger-row" style="grid-template-columns:1fr 160px auto auto auto;">
             <a class="ledger-title" href="/admin/users/{{ m.id }}">{{ m.name }} ({{ m.email }})</a>
+            <div class="pct-cell">
+                <div class="bar-track"><div class="bar-fill {% if user_progress[m.id] >= 100 %}is-done{% endif %}" data-target="{{ user_progress[m.id] }}"></div></div>
+                <span class="pct-num">{{ user_progress[m.id] }}%</span>
+            </div>
             <span class="pct-num">Pendiente: {{ counts[m.id]["pendiente"] }}</span>
             <span class="pct-num">En progreso: {{ counts[m.id]["en_progreso"] }}</span>
             <span class="pct-num">Completado: {{ counts[m.id]["completado"] }}</span>

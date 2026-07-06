@@ -10,7 +10,7 @@ from app.csrf import get_or_create_csrf_token, require_csrf
 from app.database import get_db
 from app.dependencies import require_admin
 from app.models import Period, Project, Ticket, User
-from app.progress import calculate_project_progress
+from app.progress import calculate_period_progress, calculate_project_progress, calculate_user_progress
 from app.templating import templates
 
 router = APIRouter(prefix="/admin")
@@ -30,14 +30,28 @@ def _ticket_counts_by_status(db: Session, member_id: int) -> dict:
     return counts
 
 
+def _user_progress(db: Session, member_id: int) -> float:
+    periods = db.query(Period).filter(Period.owner_id == member_id).all()
+    return calculate_user_progress(periods)
+
+
+def _period_ticket_counts(period: Period) -> dict:
+    counts = {"pendiente": 0, "en_progreso": 0, "completado": 0}
+    for project in period.projects:
+        for ticket in project.tickets:
+            counts[ticket.status] = counts.get(ticket.status, 0) + 1
+    return counts
+
+
 @router.get("", response_class=HTMLResponse)
 def admin_dashboard(request: Request, admin_user: User = Depends(require_admin), db: Session = Depends(get_db)):
     members = db.query(User).filter(User.role == "member").all()
     counts = {member.id: _ticket_counts_by_status(db, member.id) for member in members}
+    user_progress = {member.id: _user_progress(db, member.id) for member in members}
     token = get_or_create_csrf_token(request)
     return templates.TemplateResponse(
         "admin_dashboard.html",
-        {"request": request, "members": members, "counts": counts, "csrf_token": token, "temp_password": None, "error": None},
+        {"request": request, "members": members, "counts": counts, "user_progress": user_progress, "csrf_token": token, "temp_password": None, "error": None},
     )
 
 
@@ -59,19 +73,21 @@ def invite_member(
         db.rollback()
         members = db.query(User).filter(User.role == "member").all()
         counts = {member.id: _ticket_counts_by_status(db, member.id) for member in members}
+        user_progress = {member.id: _user_progress(db, member.id) for member in members}
         token = get_or_create_csrf_token(request)
         return templates.TemplateResponse(
             "admin_dashboard.html",
-            {"request": request, "members": members, "counts": counts, "csrf_token": token, "temp_password": None, "error": "Ese email ya esta registrado."},
+            {"request": request, "members": members, "counts": counts, "user_progress": user_progress, "csrf_token": token, "temp_password": None, "error": "Ese email ya esta registrado."},
             status_code=400,
         )
 
     members = db.query(User).filter(User.role == "member").all()
     counts = {member.id: _ticket_counts_by_status(db, member.id) for member in members}
+    user_progress = {member.id: _user_progress(db, member.id) for member in members}
     token = get_or_create_csrf_token(request)
     return templates.TemplateResponse(
         "admin_dashboard.html",
-        {"request": request, "members": members, "counts": counts, "csrf_token": token, "temp_password": temp_password, "error": None},
+        {"request": request, "members": members, "counts": counts, "user_progress": user_progress, "csrf_token": token, "temp_password": temp_password, "error": None},
     )
 
 
@@ -88,9 +104,18 @@ def admin_user_periods(
 
     periods = db.query(Period).filter(Period.owner_id == member.id).order_by(Period.start_date.desc()).all()
     progress = {project.id: calculate_project_progress(project) for period in periods for project in period.projects}
+    period_progress = {period.id: calculate_period_progress(period) for period in periods}
+    period_counts = {period.id: _period_ticket_counts(period) for period in periods}
     return templates.TemplateResponse(
         "admin_user_periods.html",
-        {"request": request, "member": member, "periods": periods, "progress": progress},
+        {
+            "request": request,
+            "member": member,
+            "periods": periods,
+            "progress": progress,
+            "period_progress": period_progress,
+            "period_counts": period_counts,
+        },
     )
 
 
