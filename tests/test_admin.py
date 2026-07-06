@@ -159,3 +159,59 @@ def test_admin_user_view_shows_period_progress_and_counts(client, db_session):
     assert "Pendiente: 1" in page.text
     assert "En progreso: 0" in page.text
     assert "Completado: 1" in page.text
+
+
+def test_admin_can_invite_new_admin_and_they_can_access_admin_panel(client, db_session):
+    register_first_admin(client)
+
+    page = client.get("/admin")
+    token = _extract_csrf(page.text)
+    response = client.post(
+        "/admin/invite",
+        data={"name": "Segundo Admin", "email": "admin2@example.com", "role": "admin", "csrf_token": token},
+    )
+    temp_password = re.search(r"<code>([^<]+)</code>", response.text).group(1)
+
+    from app.models import User
+
+    new_admin = db_session.query(User).filter(User.email == "admin2@example.com").first()
+    assert new_admin.role == "admin"
+
+    token = _extract_csrf(client.get("/dashboard").text)
+    client.post("/logout", data={"csrf_token": token})
+    login(client, "admin2@example.com", temp_password)
+
+    admin_page = client.get("/admin")
+    assert admin_page.status_code == 200
+
+
+def test_admin_dashboard_lists_all_other_participants_regardless_of_role(client, db_session):
+    register_first_admin(client)
+
+    page = client.get("/admin")
+    token = _extract_csrf(page.text)
+    client.post(
+        "/admin/invite",
+        data={"name": "Segundo Admin", "email": "admin2@example.com", "role": "admin", "csrf_token": token},
+    )
+    _invite_member(client, email="member2@example.com", name="Member Two")
+
+    admin_page = client.get("/admin")
+    assert "admin2@example.com" in admin_page.text
+    assert "member2@example.com" in admin_page.text
+
+
+def test_invalid_role_value_defaults_to_member(client, db_session):
+    register_first_admin(client)
+
+    page = client.get("/admin")
+    token = _extract_csrf(page.text)
+    client.post(
+        "/admin/invite",
+        data={"name": "Raro", "email": "raro@example.com", "role": "superadmin", "csrf_token": token},
+    )
+
+    from app.models import User
+
+    user = db_session.query(User).filter(User.email == "raro@example.com").first()
+    assert user.role == "member"

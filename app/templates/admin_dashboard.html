@@ -15,8 +15,9 @@
 
     <div class="ledger fade-up section-block">
     {% for m in members %}
-        <div class="ledger-row" style="grid-template-columns:1fr 160px auto auto auto;">
+        <div class="ledger-row" style="grid-template-columns:1fr 70px 160px auto auto auto;">
             <a class="ledger-title" href="/admin/users/{{ m.id }}">{{ m.name }} ({{ m.email }})</a>
+            <span class="pct-num" style="text-transform:uppercase;">{{ m.role }}</span>
             <div class="pct-cell">
                 <div class="bar-track"><div class="bar-fill {% if user_progress[m.id] >= 100 %}is-done{% endif %}" data-target="{{ user_progress[m.id] }}"></div></div>
                 <span class="pct-num">{{ user_progress[m.id] }}%</span>
@@ -36,6 +37,12 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <label>Nombre <input type="text" name="name" required></label>
             <label>Email <input type="email" name="email" required></label>
+            <label>Rol
+                <select name="role">
+                    <option value="member" selected>member</option>
+                    <option value="admin">admin</option>
+                </select>
+            </label>
             <button type="submit" class="btn btn-primary">Invitar</button>
         </form>
     </div>

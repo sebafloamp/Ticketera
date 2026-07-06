@@ -43,9 +43,13 @@ def _period_ticket_counts(period: Period) -> dict:
     return counts
 
 
+def _other_participants(db: Session, admin_user: User):
+    return db.query(User).filter(User.id != admin_user.id).order_by(User.name).all()
+
+
 @router.get("", response_class=HTMLResponse)
 def admin_dashboard(request: Request, admin_user: User = Depends(require_admin), db: Session = Depends(get_db)):
-    members = db.query(User).filter(User.role == "member").all()
+    members = _other_participants(db, admin_user)
     counts = {member.id: _ticket_counts_by_status(db, member.id) for member in members}
     user_progress = {member.id: _user_progress(db, member.id) for member in members}
     token = get_or_create_csrf_token(request)
@@ -60,18 +64,20 @@ def invite_member(
     request: Request,
     email: str = Form(...),
     name: str = Form(...),
+    role: str = Form("member"),
     admin_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
     _: None = Depends(require_csrf),
 ):
+    safe_role = role if role in ("admin", "member") else "member"
     temp_password = secrets.token_urlsafe(8)
-    user = User(email=email, name=name, password_hash=hash_password(temp_password), role="member")
+    user = User(email=email, name=name, password_hash=hash_password(temp_password), role=safe_role)
     db.add(user)
     try:
         db.commit()
     except IntegrityError:
         db.rollback()
-        members = db.query(User).filter(User.role == "member").all()
+        members = _other_participants(db, admin_user)
         counts = {member.id: _ticket_counts_by_status(db, member.id) for member in members}
         user_progress = {member.id: _user_progress(db, member.id) for member in members}
         token = get_or_create_csrf_token(request)
@@ -81,7 +87,7 @@ def invite_member(
             status_code=400,
         )
 
-    members = db.query(User).filter(User.role == "member").all()
+    members = _other_participants(db, admin_user)
     counts = {member.id: _ticket_counts_by_status(db, member.id) for member in members}
     user_progress = {member.id: _user_progress(db, member.id) for member in members}
     token = get_or_create_csrf_token(request)
@@ -98,7 +104,7 @@ def admin_user_periods(
     admin_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    member = db.query(User).filter(User.id == user_id, User.role == "member").first()
+    member = db.query(User).filter(User.id == user_id, User.id != admin_user.id).first()
     if not member:
         return RedirectResponse("/admin", status_code=303)
 
@@ -127,7 +133,7 @@ def admin_project_tickets(
     admin_user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
-    member = db.query(User).filter(User.id == user_id, User.role == "member").first()
+    member = db.query(User).filter(User.id == user_id, User.id != admin_user.id).first()
     if not member:
         return RedirectResponse("/admin", status_code=303)
 
