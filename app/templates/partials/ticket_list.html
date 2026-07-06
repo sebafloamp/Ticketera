@@ -20,7 +20,7 @@
             <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">
             <button type="submit" class="delete-x" title="Eliminar ticket">&times;</button>
         </form>
-        <form class="edit-desc-form" method="post" action="/tickets/{{ ticket.id }}/edit">
+        <form class="edit-desc-form" method="post" action="/tickets/{{ ticket.id }}/edit" hidden>
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">
             <input type="text" name="description" maxlength="100" value="{{ ticket.description }}"
@@ -35,8 +35,8 @@
 document.querySelectorAll(".ticket-list .task-edit").forEach(function (btn) {
     btn.addEventListener("click", function () {
         var form = btn.parentElement.querySelector(".edit-desc-form");
-        var visible = form.classList.toggle("open");
-        if (visible) form.querySelector('input[name="description"]').focus();
+        form.hidden = !form.hidden;
+        if (!form.hidden) form.querySelector('input[name="description"]').focus();
     });
 });
 </script>

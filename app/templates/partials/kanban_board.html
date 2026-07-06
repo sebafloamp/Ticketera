@@ -10,7 +10,7 @@
                 <span class="pct-num" style="text-transform:uppercase;font-size:11px;">{{ ticket.priority }}</span>
                 {% if ticket.due_date %}<span style="font-size:11px;color:var(--ink-soft);">{{ ticket.due_date.strftime("%Y-%m-%d") }}</span>{% endif %}
                 {% if ticket.description %}<div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">{{ ticket.description }}</div>{% endif %}
-                <form class="edit-desc-form" method="post" action="/tickets/{{ ticket.id }}/edit">
+                <form class="edit-desc-form" method="post" action="/tickets/{{ ticket.id }}/edit" hidden>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">
                     <input type="text" name="description" maxlength="100" value="{{ ticket.description }}"
@@ -54,8 +54,8 @@ document.querySelectorAll(".kanban-tasks").forEach(function (column) {
 document.querySelectorAll(".task-edit").forEach(function (btn) {
     btn.addEventListener("click", function () {
         var form = btn.parentElement.querySelector(".edit-desc-form");
-        var visible = form.classList.toggle("open");
-        if (visible) form.querySelector('input[name="description"]').focus();
+        form.hidden = !form.hidden;
+        if (!form.hidden) form.querySelector('input[name="description"]').focus();
     });
 });
 

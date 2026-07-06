@@ -118,8 +118,10 @@ code {
 .task-edit:hover { color: var(--teal); background: var(--teal-soft); }
 
 /* ---------- Inline description edit ---------- */
-.edit-desc-form { display: none; }
-.edit-desc-form.open { display: flex; gap: 6px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+/* Hiding is driven by the HTML hidden attribute, not a class, so a stale
+   cached stylesheet can never leave the form permanently visible. */
+.edit-desc-form[hidden] { display: none !important; }
+.edit-desc-form { display: flex; gap: 6px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
 .edit-desc-form input[name="description"] { flex: 1; min-width: 140px; font-size: 13px; padding: 6px 8px; }
 .edit-desc-form .edit-desc-save { font-size: 12px; padding: 6px 12px; }
 
