@@ -1,9 +1,12 @@
 name: Send weekly reminders
 
 on:
-  schedule:
-    # 13:00 UTC ~ 09:00/10:00 Chile (depende de horario de verano). Ajustar si hace falta.
-    - cron: "0 13 * * *"
+  # Cron desactivado hasta configurar RESEND_API_KEY (Render) y REMINDER_TASK_TOKEN +
+  # RENDER_APP_URL (secrets de este repo) -- sin eso, la corrida diaria falla siempre.
+  # Para reactivar: descomentar el bloque "schedule" de abajo.
+  # schedule:
+  #   # 13:00 UTC ~ 09:00/10:00 Chile (depende de horario de verano). Ajustar si hace falta.
+  #   - cron: "0 13 * * *"
   workflow_dispatch: {}
 
 jobs:
