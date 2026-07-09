@@ -1,4 +1,4 @@
-from app.models import Period, Project
+from app.models import Period, Project, User
 
 
 def calculate_project_progress(project: Project) -> float:
@@ -15,6 +15,24 @@ def calculate_period_progress(period: Period) -> float:
         return 0.0
     total = sum(calculate_project_progress(project) for project in projects)
     return round(total / len(projects), 1)
+
+
+def calculate_individual_progress(period: Period, user: User) -> float:
+    """% de tickets del periodo asignados a `user` que estan completados.
+
+    Un ticket con varios responsables cuenta completo para cada uno (no se divide).
+    Sin tickets asignados en el periodo -> 0.0.
+    """
+    assigned = [
+        ticket
+        for project in period.projects
+        for ticket in project.tickets
+        if any(assignee.id == user.id for assignee in ticket.assignees)
+    ]
+    if not assigned:
+        return 0.0
+    done = sum(1 for ticket in assigned if ticket.status == "completado")
+    return round((done / len(assigned)) * 100, 1)
 
 
 def calculate_user_progress(periods: list[Period]) -> float:

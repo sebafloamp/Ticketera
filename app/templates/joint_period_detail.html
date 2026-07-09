@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{{ period.name }} - Ticketera Individual{% endblock %}
+{% block content %}
+<div class="wrap">
+    <nav class="topnav">
+        <a class="brand" href="/dashboard"><span class="dot"></span> Ticketera Individual</a>
+    </nav>
+
+    <a href="/dashboard" style="color:var(--ink-soft);font-size:14px;">&larr; Dashboard</a>
+    <h1 class="fade-up" style="margin-top:14px;">{{ period.name }} <span style="font-size:14px;color:var(--ink-soft);">(periodo conjunto)</span></h1>
+
+    <div class="fade-up pct-cell" style="max-width:380px;margin-bottom:20px;">
+        <span style="font-size:12px;color:var(--ink-soft);min-width:120px;">Progreso Grupal</span>
+        <div class="bar-track"><div class="bar-fill {% if group_progress >= 100 %}is-done{% endif %}" data-target="{{ group_progress }}"></div></div>
+        <span class="pct-num">{{ group_progress }}%</span>
+    </div>
+
+    <div class="card fade-up section-block">
+        <h2>Progreso individual</h2>
+        <div class="ledger">
+        {% for participant, pct in individual_progress %}
+            <div class="ledger-row">
+                <span class="ledger-title">{{ participant.name }}{% if participant.id == current_user.id %} (yo){% endif %}</span>
+                <div class="pct-cell">
+                    <div class="bar-track"><div class="bar-fill {% if pct >= 100 %}is-done{% endif %}" data-target="{{ pct }}"></div></div>
+                    <span class="pct-num">{{ pct }}%</span>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+
+    {% if period.is_active %}
+    <div class="card fade-up section-block">
+        <h2>Nuevo proyecto</h2>
+        <form method="post" action="/projects" class="row">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="period_id" value="{{ period.id }}">
+            <input type="text" name="title" placeholder="Nuevo proyecto" required>
+            <button type="submit" class="btn btn-ghost">Crear proyecto</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="ledger fade-up">
+    {% for project in period.projects %}
+        <div class="ledger-row">
+            <a class="ledger-title" href="/projects/{{ project.id }}">{{ project.title }}</a>
+            <div class="pct-cell">
+                <div class="bar-track"><div class="bar-fill {% if project_progress[project.id] >= 100 %}is-done{% endif %}" data-target="{{ project_progress[project.id] }}"></div></div>
+                <span class="pct-num">{{ project_progress[project.id] }}%</span>
+            </div>
+            <form method="post" action="/projects/{{ project.id }}/delete"
+                  onsubmit="return confirm('Eliminar el proyecto {{ project.title }} y todos sus tickets?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="delete-x" title="Eliminar proyecto">&times;</button>
+            </form>
+        </div>
+    {% else %}
+        <div class="ledger-empty">Sin proyectos todavia.</div>
+    {% endfor %}
+    </div>
+</div>
+{% endblock %}

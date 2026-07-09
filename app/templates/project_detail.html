@@ -6,7 +6,11 @@
         <a class="brand" href="/dashboard"><span class="dot"></span> Ticketera Individual</a>
     </nav>
 
+    {% if project.period.is_joint %}
+    <a href="/periods/{{ project.period_id }}" style="color:var(--ink-soft);font-size:14px;">&larr; {{ project.period.name }}</a>
+    {% else %}
     <a href="/dashboard" style="color:var(--ink-soft);font-size:14px;">&larr; Dashboard</a>
+    {% endif %}
     <h1 class="fade-up" style="margin-top:14px;">{{ project.title }}</h1>
     <div class="fade-up pct-cell" style="max-width:320px;margin-bottom:24px;">
         <div class="bar-track"><div class="bar-fill {% if project_progress >= 100 %}is-done{% endif %}" data-target="{{ project_progress }}"></div></div>
@@ -30,6 +34,16 @@
                 <option value="alta">alta</option>
             </select>
             <input type="date" name="due_date">
+            {% if project.period.is_joint %}
+            <label style="font-size:13.5px;">
+                Responsables (Ctrl+clic para varios)
+                <select name="assignee_ids" multiple size="3" required>
+                    {% for participant in project.period.participants %}
+                    <option value="{{ participant.id }}">{{ participant.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            {% endif %}
             <button type="submit" class="btn btn-primary">Agregar ticket</button>
         </form>
     </div>

@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import Boolean, Column, Date, DateTime, ForeignKey, Integer, String, Table, Text
 from sqlalchemy.orm import relationship
 
 from app.database import Base
@@ -8,6 +8,21 @@ from app.database import Base
 
 def utcnow() -> datetime:
     return datetime.now(timezone.utc)
+
+
+period_participants = Table(
+    "period_participants",
+    Base.metadata,
+    Column("period_id", Integer, ForeignKey("periods.id"), primary_key=True),
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
+
+ticket_assignees = Table(
+    "ticket_assignees",
+    Base.metadata,
+    Column("ticket_id", Integer, ForeignKey("tickets.id"), primary_key=True),
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+)
 
 
 class User(Base):
@@ -34,8 +49,10 @@ class Period(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     is_active = Column(Boolean, default=True)
+    is_joint = Column(Boolean, nullable=False, default=False)  # True = periodo conjunto con participantes
 
     projects = relationship("Project", back_populates="period", cascade="all, delete-orphan")
+    participants = relationship("User", secondary=period_participants)
 
 
 class Project(Base):
@@ -66,3 +83,4 @@ class Ticket(Base):
     updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
 
     project = relationship("Project", back_populates="tickets")
+    assignees = relationship("User", secondary=ticket_assignees)

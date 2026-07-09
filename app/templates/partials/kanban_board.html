@@ -10,6 +10,7 @@
                 <span class="pct-num" style="text-transform:uppercase;font-size:11px;">{{ ticket.priority }}</span>
                 {% if ticket.due_date %}<span style="font-size:11px;color:var(--ink-soft);">{{ ticket.due_date.strftime("%Y-%m-%d") }}</span>{% endif %}
                 {% if ticket.description %}<div style="font-size:12px;color:var(--ink-soft);margin-top:4px;">{{ ticket.description }}</div>{% endif %}
+                {% if ticket.assignees %}<div style="font-size:11px;color:var(--teal);margin-top:4px;">{% for assignee in ticket.assignees %}{{ assignee.name }}{% if not loop.last %}, {% endif %}{% endfor %}</div>{% endif %}
                 <form class="edit-desc-form" method="post" action="/tickets/{{ ticket.id }}/edit" hidden>
                     <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
                     <input type="hidden" name="redirect_to" value="/projects/{{ ticket.project_id }}">

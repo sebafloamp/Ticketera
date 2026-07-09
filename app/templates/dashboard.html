@@ -27,9 +27,53 @@
                 <input type="checkbox" name="carry_over" value="1" checked>
                 Arrastrar proyectos con tickets pendientes
             </label>
+            <label style="flex-direction:row;align-items:center;gap:6px;font-size:13.5px;">
+                <input type="checkbox" name="is_joint" value="1" id="is-joint-check"
+                       onchange="document.getElementById('joint-participants').hidden = !this.checked;">
+                Periodo conjunto
+            </label>
+            <label id="joint-participants" hidden style="font-size:13.5px;">
+                Participantes (Ctrl+clic para varios)
+                <select name="participant_ids" multiple size="4">
+                    {% for user in other_users %}
+                    <option value="{{ user.id }}">{{ user.name }} ({{ user.email }})</option>
+                    {% endfor %}
+                </select>
+            </label>
             <button type="submit" class="btn btn-primary">Crear periodo</button>
         </form>
     </div>
+
+    {% if joint_periods %}
+    <h2 class="fade-up" style="margin-top:28px;">Periodos conjuntos</h2>
+    {% for period in joint_periods %}
+    <section class="section-block fade-up card">
+        <div class="row" style="align-items:center;justify-content:space-between;">
+            <h2><a class="ledger-title" href="/periods/{{ period.id }}">{{ period.name }}</a> {% if not period.is_active %}(cerrado){% endif %}</h2>
+            {% if period.owner_id == current_user.id %}
+            <form method="post" action="/periods/{{ period.id }}/delete"
+                  onsubmit="return confirm('Eliminar el periodo conjunto {{ period.name }} y todos sus proyectos y tickets?');">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button type="submit" class="delete-x" style="font-size:13px;">Eliminar periodo</button>
+            </form>
+            {% endif %}
+        </div>
+        <div class="pct-cell" style="max-width:320px;">
+            <span style="font-size:12px;color:var(--ink-soft);min-width:120px;">Progreso Grupal</span>
+            <div class="bar-track"><div class="bar-fill {% if joint_progress[period.id].group >= 100 %}is-done{% endif %}" data-target="{{ joint_progress[period.id].group }}"></div></div>
+            <span class="pct-num">{{ joint_progress[period.id].group }}%</span>
+        </div>
+        <div class="pct-cell" style="max-width:320px;margin-bottom:8px;">
+            <span style="font-size:12px;color:var(--ink-soft);min-width:120px;">Progreso individual</span>
+            <div class="bar-track"><div class="bar-fill {% if joint_progress[period.id].mine >= 100 %}is-done{% endif %}" data-target="{{ joint_progress[period.id].mine }}"></div></div>
+            <span class="pct-num">{{ joint_progress[period.id].mine }}%</span>
+        </div>
+        <a href="/periods/{{ period.id }}" class="btn btn-ghost">Ver periodo conjunto</a>
+    </section>
+    {% endfor %}
+    {% endif %}
+
+    <h2 class="fade-up" style="margin-top:28px;">Mis periodos</h2>
 
     {% for period in periods %}
     <section class="section-block fade-up">
