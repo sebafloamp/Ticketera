@@ -19,7 +19,7 @@
     <div class="card fade-up section-block">
         <h2>Nuevo periodo</h2>
         <form method="post" action="/periods" class="row">
-            <input type="text" name="name" placeholder="Q1 2026" required>
+            <input type="text" name="name" required>
             <input type="date" name="start_date" required>
             <input type="date" name="end_date" required>
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
