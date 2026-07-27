@@ -33,7 +33,10 @@
                 <option value="media" selected>media</option>
                 <option value="alta">alta</option>
             </select>
-            <input type="date" name="due_date">
+            <label style="font-size:13.5px;">
+                Fecha de término
+                <input type="date" name="due_date">
+            </label>
             {% if project.period.is_joint %}
             <label style="font-size:13.5px;">
                 Responsables (Ctrl+clic para varios)

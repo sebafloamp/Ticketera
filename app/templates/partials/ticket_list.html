@@ -10,7 +10,7 @@
                 <option value="en_progreso" {% if ticket.status == "en_progreso" %}selected{% endif %}>en progreso</option>
                 <option value="completado" {% if ticket.status == "completado" %}selected{% endif %}>completado</option>
             </select>
-            {{ ticket.title }} ({{ ticket.priority }}{% if ticket.due_date %}, {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
+            {{ ticket.title }} ({{ ticket.priority }}, creado {{ ticket.created_at.strftime("%Y-%m-%d") }}{% if ticket.due_date %}, vence {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %})
             {% if ticket.description %}<span style="font-size:12px;color:var(--ink-soft);">— {{ ticket.description }}</span>{% endif %}
             {% if ticket.assignees %}<span style="font-size:11px;color:var(--teal);">[{% for assignee in ticket.assignees %}{{ assignee.name }}{% if not loop.last %}, {% endif %}{% endfor %}]</span>{% endif %}
         </form>

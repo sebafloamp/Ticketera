@@ -10,7 +10,7 @@
 
     <ul class="ticket-list fade-up">
     {% for ticket in tickets %}
-        <li>{{ ticket.title }} — <strong>{{ ticket.status }}</strong>, prioridad {{ ticket.priority }}{% if ticket.due_date %}, vence {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %}</li>
+        <li>{{ ticket.title }} — <strong>{{ ticket.status }}</strong>, prioridad {{ ticket.priority }}, creado {{ ticket.created_at.strftime("%Y-%m-%d") }}{% if ticket.due_date %}, vence {{ ticket.due_date.strftime("%Y-%m-%d") }}{% endif %}</li>
     {% else %}
         <li>Sin tickets todavia.</li>
     {% endfor %}
