@@ -23,7 +23,7 @@
     </div>
 
     <div class="card fade-up" style="margin-bottom:24px;">
-        <form method="post" action="/tickets" class="row">
+        <form method="post" action="/tickets" class="row" style="align-items:flex-end;">
             <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
             <input type="hidden" name="project_id" value="{{ project.id }}">
             <input type="text" name="title" placeholder="Nuevo ticket" required>
