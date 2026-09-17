@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "TicketeraReporte"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "621bc59d-bc0e-4f6c-a3b3-3f32c6e1a282"
+  }
+}

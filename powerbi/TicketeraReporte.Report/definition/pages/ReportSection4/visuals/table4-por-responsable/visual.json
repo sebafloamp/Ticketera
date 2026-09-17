@@ -1,0 +1,65 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "table4-por-responsable",
+  "position": {
+    "x": 640,
+    "y": 170,
+    "width": 620,
+    "height": 350,
+    "z": 4,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Conjunto"
+                    }
+                  },
+                  "Property": "responsable_nombre"
+                }
+              },
+              "queryRef": "Tickets_Conjunto.responsable_nombre",
+              "nativeQueryRef": "responsable_nombre"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Conjunto"
+                    }
+                  },
+                  "Property": "Tickets Conjuntos (Vigentes)"
+                }
+              },
+              "queryRef": "Tickets_Conjunto.Tickets Conjuntos (Vigentes)",
+              "nativeQueryRef": "Tickets Conjuntos (Vigentes)"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Conjunto"
+                    }
+                  },
+                  "Property": "Progreso Individual Promedio"
+                }
+              },
+              "queryRef": "Tickets_Conjunto.Progreso Individual Promedio",
+              "nativeQueryRef": "Progreso Individual Promedio"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

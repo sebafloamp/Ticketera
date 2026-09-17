@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "chart3-tickets-creados",
+  "position": {
+    "x": 20,
+    "y": 360,
+    "width": 1240,
+    "height": 320,
+    "z": 1,
+    "tabOrder": 1
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "ticket_creado"
+                }
+              },
+              "queryRef": "Tickets_Individual.ticket_creado",
+              "nativeQueryRef": "ticket_creado"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "Tickets en Snapshot"
+                }
+              },
+              "queryRef": "Tickets_Individual.Tickets en Snapshot",
+              "nativeQueryRef": "Tickets en Snapshot"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

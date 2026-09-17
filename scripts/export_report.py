@@ -81,7 +81,8 @@ def export_snapshot(db, path, stamp):
             progress_by_project[project.id] = calculate_project_progress(project)
 
     file_is_new = not os.path.isfile(path)
-    with open(path, "a", newline="", encoding="utf-8") as f:
+    encoding = "utf-8-sig" if file_is_new else "utf-8"
+    with open(path, "a", newline="", encoding=encoding) as f:
         writer = csv.DictWriter(f, fieldnames=FIELDNAMES)
         if file_is_new:
             writer.writeheader()
@@ -111,7 +112,8 @@ def export_snapshot_conjuntos(db, path, stamp):
 
     row_count = 0
     file_is_new = not os.path.isfile(path)
-    with open(path, "a", newline="", encoding="utf-8") as f:
+    encoding = "utf-8-sig" if file_is_new else "utf-8"
+    with open(path, "a", newline="", encoding=encoding) as f:
         writer = csv.DictWriter(f, fieldnames=JOINT_FIELDNAMES)
         if file_is_new:
             writer.writeheader()

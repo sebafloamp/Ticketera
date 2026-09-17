@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "chart2-vencidos-por-prioridad",
+  "position": {
+    "x": 20,
+    "y": 170,
+    "width": 400,
+    "height": 280,
+    "z": 3,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "prioridad"
+                }
+              },
+              "queryRef": "Tickets_Individual.prioridad",
+              "nativeQueryRef": "prioridad"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "Tickets Vencidos"
+                }
+              },
+              "queryRef": "Tickets_Individual.Tickets Vencidos",
+              "nativeQueryRef": "Tickets Vencidos"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

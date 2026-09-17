@@ -1,0 +1,37 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "card2-atraso-promedio",
+  "position": {
+    "x": 500,
+    "y": 20,
+    "width": 220,
+    "height": 130,
+    "z": 2,
+    "tabOrder": 2
+  },
+  "visual": {
+    "visualType": "card",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "Atraso Promedio (Completados, días)"
+                }
+              },
+              "queryRef": "Tickets_Individual.Atraso Promedio (Completados, días)",
+              "nativeQueryRef": "Atraso Promedio (Completados, días)"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

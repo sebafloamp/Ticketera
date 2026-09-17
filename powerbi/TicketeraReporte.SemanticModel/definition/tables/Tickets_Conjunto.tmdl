@@ -1,0 +1,170 @@
+table Tickets_Conjunto
+
+	column fecha_extraccion
+		dataType: dateTime
+		sourceColumn: fecha_extraccion
+		formatString: General Date
+		summarizeBy: none
+
+	column periodo_id
+		dataType: int64
+		sourceColumn: periodo_id
+		formatString: 0
+		summarizeBy: none
+
+	column periodo
+		dataType: string
+		sourceColumn: periodo
+		summarizeBy: none
+
+	column proyecto_id
+		dataType: int64
+		sourceColumn: proyecto_id
+		formatString: 0
+		summarizeBy: none
+
+	column proyecto
+		dataType: string
+		sourceColumn: proyecto
+		summarizeBy: none
+
+	column ticket_id
+		dataType: int64
+		sourceColumn: ticket_id
+		formatString: 0
+		summarizeBy: none
+
+	column ticket
+		dataType: string
+		sourceColumn: ticket
+		summarizeBy: none
+
+	column estado
+		dataType: string
+		sourceColumn: estado
+		summarizeBy: none
+
+	column prioridad
+		dataType: string
+		sourceColumn: prioridad
+		summarizeBy: none
+
+	column responsable_email
+		dataType: string
+		sourceColumn: responsable_email
+		summarizeBy: none
+
+	column responsable_nombre
+		dataType: string
+		sourceColumn: responsable_nombre
+		summarizeBy: none
+
+	column progreso_individual_responsable_pct
+		dataType: double
+		sourceColumn: progreso_individual_responsable_pct
+		formatString: 0.0
+		summarizeBy: none
+
+	column progreso_grupal_periodo_pct
+		dataType: double
+		sourceColumn: progreso_grupal_periodo_pct
+		formatString: 0.0
+		summarizeBy: none
+
+	column fecha_limite
+		dataType: dateTime
+		sourceColumn: fecha_limite
+		formatString: General Date
+		summarizeBy: none
+
+	column ticket_creado
+		dataType: dateTime
+		sourceColumn: ticket_creado
+		formatString: General Date
+		summarizeBy: none
+
+	column ticket_actualizado
+		dataType: dateTime
+		sourceColumn: ticket_actualizado
+		formatString: General Date
+		summarizeBy: none
+
+	measure 'Última Extracción (Conjuntos)' = ```
+			MAX ( Tickets_Conjunto[fecha_extraccion] )
+			```
+		formatString: General Date
+
+	measure 'Tickets Conjuntos (Vigentes)' = ```
+			CALCULATE (
+			    DISTINCTCOUNT ( Tickets_Conjunto[ticket_id] ),
+			    FILTER (
+			        ALL ( Tickets_Conjunto[fecha_extraccion] ),
+			        Tickets_Conjunto[fecha_extraccion] = [Última Extracción (Conjuntos)]
+			    )
+			)
+			```
+		formatString: 0
+
+	measure 'Responsables Activos' = ```
+			CALCULATE (
+			    DISTINCTCOUNT ( Tickets_Conjunto[responsable_email] ),
+			    FILTER (
+			        ALL ( Tickets_Conjunto[fecha_extraccion] ),
+			        Tickets_Conjunto[fecha_extraccion] = [Última Extracción (Conjuntos)]
+			    )
+			)
+			```
+		formatString: 0
+
+	measure 'Progreso Individual Promedio' = ```
+			VAR UltimaFecha = [Última Extracción (Conjuntos)]
+			VAR ResponsablesUnicos =
+			    FILTER (
+			        SUMMARIZE (
+			            Tickets_Conjunto,
+			            Tickets_Conjunto[responsable_email],
+			            Tickets_Conjunto[periodo_id],
+			            Tickets_Conjunto[progreso_individual_responsable_pct],
+			            Tickets_Conjunto[fecha_extraccion]
+			        ),
+			        Tickets_Conjunto[fecha_extraccion] = UltimaFecha
+			    )
+			RETURN
+			    AVERAGEX ( ResponsablesUnicos, Tickets_Conjunto[progreso_individual_responsable_pct] )
+			```
+		formatString: 0.0
+
+	measure 'Progreso Grupal Promedio' = ```
+			VAR UltimaFecha = [Última Extracción (Conjuntos)]
+			VAR PeriodosUnicos =
+			    FILTER (
+			        SUMMARIZE (
+			            Tickets_Conjunto,
+			            Tickets_Conjunto[periodo_id],
+			            Tickets_Conjunto[progreso_grupal_periodo_pct],
+			            Tickets_Conjunto[fecha_extraccion]
+			        ),
+			        Tickets_Conjunto[fecha_extraccion] = UltimaFecha
+			    )
+			RETURN
+			    AVERAGEX ( PeriodosUnicos, Tickets_Conjunto[progreso_grupal_periodo_pct] )
+			```
+		formatString: 0.0
+
+	partition Tickets_Conjunto = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\s.flores\PycharmProjects\pythonProject\historial_periodos_conjuntos.csv"), [Delimiter=",", Columns=16, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{
+				        {"fecha_extraccion", type datetime}, {"periodo_id", Int64.Type}, {"periodo", type text},
+				        {"proyecto_id", Int64.Type}, {"proyecto", type text}, {"ticket_id", Int64.Type}, {"ticket", type text},
+				        {"estado", type text}, {"prioridad", type text}, {"responsable_email", type text}, {"responsable_nombre", type text},
+				        {"progreso_individual_responsable_pct", type number}, {"progreso_grupal_periodo_pct", type number},
+				        {"fecha_limite", type datetime}, {"ticket_creado", type datetime}, {"ticket_actualizado", type datetime}
+				    })
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_ResultType = Table

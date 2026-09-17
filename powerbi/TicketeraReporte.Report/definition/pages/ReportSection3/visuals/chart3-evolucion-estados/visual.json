@@ -1,0 +1,69 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "chart3-evolucion-estados",
+  "position": {
+    "x": 20,
+    "y": 20,
+    "width": 1240,
+    "height": 320,
+    "z": 0,
+    "tabOrder": 0
+  },
+  "visual": {
+    "visualType": "lineChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "fecha_extraccion"
+                }
+              },
+              "queryRef": "Tickets_Individual.fecha_extraccion",
+              "nativeQueryRef": "fecha_extraccion"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "Tickets en Snapshot"
+                }
+              },
+              "queryRef": "Tickets_Individual.Tickets en Snapshot",
+              "nativeQueryRef": "Tickets en Snapshot"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "Completados en Snapshot"
+                }
+              },
+              "queryRef": "Tickets_Individual.Completados en Snapshot",
+              "nativeQueryRef": "Completados en Snapshot"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

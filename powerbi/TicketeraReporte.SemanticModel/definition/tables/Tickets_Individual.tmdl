@@ -1,0 +1,225 @@
+table Tickets_Individual
+
+	column fecha_extraccion
+		dataType: dateTime
+		sourceColumn: fecha_extraccion
+		formatString: General Date
+		summarizeBy: none
+
+	column usuario_email
+		dataType: string
+		sourceColumn: usuario_email
+		summarizeBy: none
+
+	column usuario_nombre
+		dataType: string
+		sourceColumn: usuario_nombre
+		summarizeBy: none
+
+	column periodo
+		dataType: string
+		sourceColumn: periodo
+		summarizeBy: none
+
+	column proyecto_id
+		dataType: int64
+		sourceColumn: proyecto_id
+		formatString: 0
+		summarizeBy: none
+
+	column proyecto
+		dataType: string
+		sourceColumn: proyecto
+		summarizeBy: none
+
+	column proyecto_progreso_pct
+		dataType: double
+		sourceColumn: proyecto_progreso_pct
+		formatString: 0.0
+		summarizeBy: none
+
+	column ticket_id
+		dataType: int64
+		sourceColumn: ticket_id
+		formatString: 0
+		summarizeBy: none
+
+	column ticket
+		dataType: string
+		sourceColumn: ticket
+		summarizeBy: none
+
+	column estado
+		dataType: string
+		sourceColumn: estado
+		summarizeBy: none
+
+	column prioridad
+		dataType: string
+		sourceColumn: prioridad
+		summarizeBy: none
+
+	column fecha_limite
+		dataType: dateTime
+		sourceColumn: fecha_limite
+		formatString: General Date
+		summarizeBy: none
+
+	column ticket_creado
+		dataType: dateTime
+		sourceColumn: ticket_creado
+		formatString: General Date
+		summarizeBy: none
+
+	column ticket_actualizado
+		dataType: dateTime
+		sourceColumn: ticket_actualizado
+		formatString: General Date
+		summarizeBy: none
+
+	measure 'Última Extracción' = ```
+			MAX ( Tickets_Individual[fecha_extraccion] )
+			```
+		formatString: General Date
+
+	measure 'Tickets (Vigentes)' = ```
+			CALCULATE (
+			    DISTINCTCOUNT ( Tickets_Individual[ticket_id] ),
+			    FILTER (
+			        ALL ( Tickets_Individual[fecha_extraccion] ),
+			        Tickets_Individual[fecha_extraccion] = [Última Extracción]
+			    )
+			)
+			```
+		formatString: 0
+
+	measure 'Tickets Pendientes' = ```
+			CALCULATE ( [Tickets (Vigentes)], Tickets_Individual[estado] = "pendiente" )
+			```
+		formatString: 0
+
+	measure 'Tickets En Progreso' = ```
+			CALCULATE ( [Tickets (Vigentes)], Tickets_Individual[estado] = "en_progreso" )
+			```
+		formatString: 0
+
+	measure 'Tickets Completados' = ```
+			CALCULATE ( [Tickets (Vigentes)], Tickets_Individual[estado] = "completado" )
+			```
+		formatString: 0
+
+	measure '% Completados' = ```
+			DIVIDE ( [Tickets Completados], [Tickets (Vigentes)] )
+			```
+		formatString: 0%
+
+	measure 'Tickets Vencidos' = ```
+			CALCULATE (
+			    [Tickets (Vigentes)],
+			    Tickets_Individual[estado] <> "completado",
+			    Tickets_Individual[fecha_limite] < TODAY ()
+			)
+			```
+		formatString: 0
+
+	measure 'Tickets Por Vencer (7 días)' = ```
+			CALCULATE (
+			    [Tickets (Vigentes)],
+			    Tickets_Individual[estado] <> "completado",
+			    Tickets_Individual[fecha_limite] >= TODAY (),
+			    Tickets_Individual[fecha_limite] <= TODAY () + 7
+			)
+			```
+		formatString: 0
+
+	measure 'Días de Atraso' = ```
+			VAR FechaLimite = MIN ( Tickets_Individual[fecha_limite] )
+			VAR Estado = SELECTEDVALUE ( Tickets_Individual[estado] )
+			RETURN
+			    IF (
+			        NOT ISBLANK ( FechaLimite )
+			            && Estado <> "completado"
+			            && FechaLimite < TODAY (),
+			        DATEDIFF ( FechaLimite, TODAY (), DAY )
+			    )
+			```
+		formatString: 0
+
+	measure 'Sin Fecha de Término' = ```
+			CALCULATE (
+			    [Tickets (Vigentes)],
+			    ISBLANK ( Tickets_Individual[fecha_limite] )
+			)
+			```
+		formatString: 0
+
+	measure 'Progreso Promedio Proyectos' = ```
+			VAR UltimaFecha = [Última Extracción]
+			VAR ProyectosUnicos =
+			    FILTER (
+			        SUMMARIZE (
+			            Tickets_Individual,
+			            Tickets_Individual[proyecto_id],
+			            Tickets_Individual[proyecto_progreso_pct],
+			            Tickets_Individual[fecha_extraccion]
+			        ),
+			        Tickets_Individual[fecha_extraccion] = UltimaFecha
+			    )
+			RETURN
+			    AVERAGEX ( ProyectosUnicos, Tickets_Individual[proyecto_progreso_pct] )
+			```
+		formatString: 0.0
+
+	measure 'Días Creado→Actualizado (Completados)' = ```
+			AVERAGEX (
+			    FILTER (
+			        Tickets_Individual,
+			        Tickets_Individual[estado] = "completado"
+			            && Tickets_Individual[fecha_extraccion] = [Última Extracción]
+			    ),
+			    DATEDIFF ( Tickets_Individual[ticket_creado], Tickets_Individual[ticket_actualizado], DAY )
+			)
+			```
+		formatString: 0.0
+
+	measure 'Atraso Promedio (Completados, días)' = ```
+			AVERAGEX (
+			    FILTER (
+			        Tickets_Individual,
+			        Tickets_Individual[estado] = "completado"
+			            && Tickets_Individual[fecha_extraccion] = [Última Extracción]
+			            && NOT ISBLANK ( Tickets_Individual[fecha_limite] )
+			            && Tickets_Individual[ticket_actualizado] > Tickets_Individual[fecha_limite]
+			    ),
+			    DATEDIFF ( Tickets_Individual[fecha_limite], Tickets_Individual[ticket_actualizado], DAY )
+			)
+			```
+		formatString: 0.0
+
+	measure 'Tickets en Snapshot' = ```
+			DISTINCTCOUNT ( Tickets_Individual[ticket_id] )
+			```
+		formatString: 0
+
+	measure 'Completados en Snapshot' = ```
+			CALCULATE ( [Tickets en Snapshot], Tickets_Individual[estado] = "completado" )
+			```
+		formatString: 0
+
+	partition Tickets_Individual = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents("C:\Users\s.flores\PycharmProjects\pythonProject\historial_tickets.csv"), [Delimiter=",", Columns=14, Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    #"Encabezados promovidos" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{
+				        {"fecha_extraccion", type datetime}, {"usuario_email", type text}, {"usuario_nombre", type text},
+				        {"periodo", type text}, {"proyecto_id", Int64.Type}, {"proyecto", type text},
+				        {"proyecto_progreso_pct", type number}, {"ticket_id", Int64.Type}, {"ticket", type text},
+				        {"estado", type text}, {"prioridad", type text}, {"fecha_limite", type datetime},
+				        {"ticket_creado", type datetime}, {"ticket_actualizado", type datetime}
+				    })
+				in
+				    #"Tipo cambiado"
+
+	annotation PBI_ResultType = Table

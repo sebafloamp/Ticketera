@@ -1,0 +1,73 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "chart-tickets-por-proyecto-estado",
+  "position": {
+    "x": 20,
+    "y": 170,
+    "width": 580,
+    "height": 280,
+    "z": 4,
+    "tabOrder": 4
+  },
+  "visual": {
+    "visualType": "clusteredColumnChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "proyecto"
+                }
+              },
+              "queryRef": "Tickets_Individual.proyecto",
+              "nativeQueryRef": "proyecto"
+            }
+          ]
+        },
+        "Series": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "estado"
+                }
+              },
+              "queryRef": "Tickets_Individual.estado",
+              "nativeQueryRef": "estado"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Individual"
+                    }
+                  },
+                  "Property": "Tickets (Vigentes)"
+                }
+              },
+              "queryRef": "Tickets_Individual.Tickets (Vigentes)",
+              "nativeQueryRef": "Tickets (Vigentes)"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

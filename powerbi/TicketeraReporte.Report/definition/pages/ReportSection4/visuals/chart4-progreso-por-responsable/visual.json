@@ -1,0 +1,55 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.9.0/schema.json",
+  "name": "chart4-progreso-por-responsable",
+  "position": {
+    "x": 20,
+    "y": 170,
+    "width": 600,
+    "height": 350,
+    "z": 3,
+    "tabOrder": 3
+  },
+  "visual": {
+    "visualType": "clusteredBarChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Conjunto"
+                    }
+                  },
+                  "Property": "responsable_nombre"
+                }
+              },
+              "queryRef": "Tickets_Conjunto.responsable_nombre",
+              "nativeQueryRef": "responsable_nombre"
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "Tickets_Conjunto"
+                    }
+                  },
+                  "Property": "Progreso Individual Promedio"
+                }
+              },
+              "queryRef": "Tickets_Conjunto.Progreso Individual Promedio",
+              "nativeQueryRef": "Progreso Individual Promedio"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

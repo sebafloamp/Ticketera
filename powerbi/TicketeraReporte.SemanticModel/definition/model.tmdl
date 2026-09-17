@@ -1,0 +1,12 @@
+model Model
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-CL
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["Tickets_Individual","Tickets_Conjunto"]
+
+ref table Tickets_Individual
+ref table Tickets_Conjunto
+
